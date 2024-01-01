@@ -1,0 +1,62 @@
+{
+  "name": "volim-te-app",
+  "version": "1.0.0",
+  "description": "VolimTeApp is a delightful application designed to cherish and celebrate the beautiful journey of love. With this app, you can set the special date that marks the beginning of your relationship, and it will enchantingly calculate and display the exact duration in months, days, hours, minutes, and seconds since that memorable moment.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "build": "electron-builder"
+  },
+  "keywords": [
+    "Love App",
+    "Relationship Countdown",
+    "Anniversary Tracker",
+    "Time Together",
+    "Relationship Milestones",
+    "Romantic Countdown",
+    "Love Celebration",
+    "Precise Timekeeping",
+    "Personalized Backgrounds",
+    "Relationship Duration",
+    "Love Journey Tracker",
+    "Special Dates Reminder",
+    "Anniversary Celebration",
+    "Relationship Time Tracker",
+    "Romantic App",
+    "Countdown Timer",
+    "Celebrate Love",
+    "Relationship Moments",
+    "Relationship Calculator",
+    "Love Anniversary App"
+  ],
+  "author": "Muhammed Šehić",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://sehic.rf.gd/volimte#contact"
+  },
+  "homepage": "https://sehic.rf.gd/volimte",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.sehic.volimte",
+    "productName": "Volim Te App",
+    "win": {
+      "icon": "images/icon.png"
+    },
+    "mac": {
+      "icon": "images/icon.png"
+    },
+    "linux": {
+      "icon": "images/icon.png"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7",
+    "electron-window-state-manager": "^0.3.2",
+    "single-instance-lock": "^1.0.2"
+  }
+}

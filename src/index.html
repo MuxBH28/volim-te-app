@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="images/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/d14b5151c4.js" crossorigin="anonymous"></script>
+    <title>VOLIM TE!</title>
+</head>
+
+<body>
+    <div id="container">
+        <div id="draggable-area"><i class="fa-solid fa-up-down-left-right"></i></div>
+        <div>|</div>
+        <div>
+            <button onclick="showSettings()"><i class="fa-solid fa-gear"></i></button>
+        </div>
+        <div>
+            <button onclick="showInfo()"><i class="fa-solid fa-info-circle"></i></button>
+        </div>
+        <div id="options">
+            <button onclick="javascript:window.close('','_parent','');"><i
+                    class="fa-solid fa-circle-xmark"></i></button>
+        </div>
+    </div>
+
+    <div id="settings">
+        <h2>Settings | <span class="font">Volim te App</span></h2>
+        <hr><br>
+        <label for="imageInput" id="inputFileID" class="inputFile">Change background</label>
+        <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="uploadImage()">
+        <p><input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"></p>
+        <p>Report a bug: <a href="https://sehic.rf.gd/volimte#contact" target="_blank"><i
+                    class="fa-solid fa-bug"></i></a></p>
+        <button onclick="hideSettings()">x</button>
+    </div>
+
+    <div id="info">
+        <h2>Info | <span class="font">Volim te App</span></h2>
+        <hr>
+        <ul>
+            <li>Version: <span app-version></span>
+            </li>
+            <li>Date of last update: <span id="versionDate"></span></li>
+            <li>Author: Muhammed Šehić</li>
+            <li>Website: <a href="https://sehic.rf.gd/" target="_blank">www.sehic.rf.gd</a></li>
+            <li>Disclaimer: <a href="https://sehic.rf.gd/volimte#disclaimer"
+                    target="_blank">www.sehic.rf.gd/volimte-disclaimer</a></li>
+        </ul>
+        <button onclick="hideInfo()">x</button>
+    </div>
+    <div id="main-container">
+        <div id="popup-container">
+            <div class="popup-info">
+                <h1 class="font">Volim te App</h1>
+                <h3>Welcome to <span class="font">Volim te App</span> <span app-version></span></h3>
+                <p>By using this app, you agree to <a href="https://sehic.rf.gd/volimte#disclaimer"
+                        target="_blank">Volim te App
+                        Disclaimer</a>
+                </p>
+                <label for="pocetakveze">Enter your date:</label>
+                <input type="date" id="pocetakveze" value="2003-12-28"><br>
+                <button id="accept-button">Accept</button>
+                <button id="leave-button">Leave</button>
+            </div>
+        </div>
+        <img id="background-image" src="images/background.jpg" alt="Background image">
+        <div id="text-overlay">
+            <h1 id="ILoveYou">Volim te</h1>
+            <div id="date-text"><span id="fixed-date"></span> ♾️ <span id="dynamic-date"></span></div>
+            <div id="timer"></div>
+        </div>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="js/version.js"></script>
+<script src="js/iloveyou.js"></script>
+<script src="js/scripts.js"></script>
+
+</html>
