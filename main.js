@@ -1,18 +1,22 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain, shell, protocol, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-
+const { autoUpdater } = require('electron-updater');
 let mainWindow;
 let loadingWindow;
 
 const gotSingleLock = app.requestSingleInstanceLock();
-
+function checkForUpdates() {
+  autoUpdater.checkForUpdatesAndNotify();
+}
 if (!gotSingleLock) {
   app.quit();
 } else {
   app.whenReady().then(() => {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+    });
     createLoadingWindow();
-
     protocol.registerBufferProtocol('custom', (request, callback) => {
       const dataUrl = request.url.substr(11);
       const buffer = Buffer.from(dataUrl, 'base64');
@@ -24,6 +28,7 @@ if (!gotSingleLock) {
         createWindow();
       }
     });
+
   });
 
   app.on('second-instance', () => {
@@ -78,8 +83,8 @@ function createWindow() {
   const displays = screen.getAllDisplays();
   const targetDisplay = displays.find(display => display.bounds.x === 0 && display.bounds.y === 0) || displays[0];
   const { workArea } = targetDisplay;
-  const windowWidth = 600;
-  const windowHeight = 300;
+  const windowWidth = 600;//600
+  const windowHeight = 300;//300
 
   const x = workArea.width - windowWidth;
   const y = workArea.y;
@@ -98,7 +103,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       sandbox: false,
-      devTools: false,
+      devTools: true,
       webSecurity: true,
       contentSecurityPolicy: {
         directives: {
@@ -125,7 +130,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => { });
-
 ipcMain.on('focusWindow', () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
@@ -133,41 +137,102 @@ ipcMain.on('focusWindow', () => {
   }
 });
 
-app.on('before-quit', () => {
-  globalShortcut.unregisterAll();
-});
+ipcMain.on('open-file-dialog', async (event) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+    ],
+  });
 
-ipcMain.on('upload-image', (event, imageInfo) => {
-  const targetPath = path.join(app.getPath('userData'), 'images', imageInfo.filename);
+  if (!result.canceled && result.filePaths.length > 0) {
+    const selectedImagePath = result.filePaths[0];
 
-  fs.copyFile(imageInfo.originalPath, targetPath, (err) => {
-    if (err) {
-      dialog.showErrorBox('Error', 'Failed to upload image');
-      return;
+    const destinationFolder = path.join(app.getPath('userData'), 'images');
+
+    if (!fs.existsSync(destinationFolder)) {
+      fs.mkdirSync(destinationFolder);
     }
 
-    dialog.showMessageBox({ message: 'Image uploaded successfully!' });
+    const fileName = path.basename(selectedImagePath);
 
-    if (mainWindow) {
-      mainWindow.webContents.send('image-uploaded', { imagePath: targetPath });
+    const destinationPath = path.join(destinationFolder, fileName);
+
+    fs.copyFileSync(selectedImagePath, destinationPath);
+
+    event.reply('file-dialog-closed', destinationPath);
+  }
+});
+
+function showUpdateAvailableDialog() {
+  const options = {
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 0,
+    title: 'Update Available',
+    message: 'A new version of the app is available. Would you like to update?',
+  };
+
+  return dialog.showMessageBox(null, options);
+}
+
+autoUpdater.on('update-available', () => {
+  showUpdateAvailableDialog().then(({ response }) => {
+    if (response === 0) {
+      autoUpdater.downloadUpdate();
     }
   });
 });
 
-ipcMain.on('app-quit', () => {
-  quitApp();
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Update Downloaded',
+    message: 'The update has been downloaded and is ready to be installed. The app will restart.',
+  }).then(() => {
+    autoUpdater.quitAndInstall();
+  });
 });
 
-function quitApp() {
+autoUpdater.on('error', (error) => {
+  dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Update Error',
+    message: `An error occurred while checking for updates: ${error.message}`,
+  });
+});
+
+
+ipcMain.on('app-quit', (event) => {
+
   const confirmation = dialog.showMessageBoxSync({
     type: 'question',
     buttons: ['Yes', 'No'],
     defaultId: 1,
-    title: 'Confirmation',
-    message: 'Are you sure you want to leave the app?',
+    title: 'Volim Te App asks:',
+    message: 'Are you sure you want to leave Volim Te App?',
   });
 
   if (confirmation === 0) {
+    globalShortcut.unregisterAll();
     app.quit();
   }
-}
+});
+
+ipcMain.on('ask-reset', async (event) => {
+  const confirmation = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Confirmation',
+    message: 'Are you sure you want to reset settings?',
+  });
+  event.reply('reset-confirmation', confirmation.response === 0);
+});
+app.on('before-quit', () => {
+  globalShortcut.unregisterAll();
+});

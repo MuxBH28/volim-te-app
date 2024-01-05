@@ -23,20 +23,26 @@
             <button onclick="showInfo()"><i class="fa-solid fa-info-circle"></i></button>
         </div>
         <div id="options">
-            <button onclick="javascript:window.close('','_parent','');"><i
-                    class="fa-solid fa-circle-xmark"></i></button>
+            <button onclick="quitApp()"><i class="fa-solid fa-circle-xmark"></i></button>
         </div>
     </div>
 
     <div id="settings">
         <h2>Settings | <span class="font">Volim te App</span></h2>
-        <hr><br>
-        <label for="imageInput" id="inputFileID" class="inputFile">Change background</label>
-        <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="uploadImage()">
-        <p><input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"></p>
-        <p>Report a bug: <a href="https://sehic.rf.gd/volimte#contact" target="_blank"><i
-                    class="fa-solid fa-bug"></i></a></p>
-        <button onclick="hideSettings()">x</button>
+        <hr>
+        <div class="cijelo">
+            <div class="pola">
+                <button id="inputFileID" class="inputFile" onclick="uploadImage()">Change background</button>
+                <p><input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"></p>
+                <p>Report a bug: <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank"><i
+                            class="fa-solid fa-bug"></i></a></p>
+            </div>
+            <div class="pola">
+                <span>Current image:</span><br>
+                <img id="current-image" alt="Current Image">
+            </div>
+        </div>
+        <button class="x-button" onclick="hideSettings()">x</button>
     </div>
 
     <div id="info">
@@ -46,12 +52,12 @@
             <li>Version: <span app-version></span>
             </li>
             <li>Date of last update: <span id="versionDate"></span></li>
-            <li>Author: Muhammed Šehić</li>
+            <li>Author: M.Šehić</li>
             <li>Website: <a href="https://sehic.rf.gd/" target="_blank">www.sehic.rf.gd</a></li>
             <li>Disclaimer: <a href="https://sehic.rf.gd/volimte#disclaimer"
-                    target="_blank">www.sehic.rf.gd/volimte-disclaimer</a></li>
+                    target="_blank">www.sehic.rf.gd/volimte#disclaimer</a></li>
         </ul>
-        <button onclick="hideInfo()">x</button>
+        <button class="x-button" onclick="hideInfo()">x</button>
     </div>
     <div id="main-container">
         <div id="popup-container">

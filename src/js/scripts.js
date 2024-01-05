@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const leaveButton = document.getElementById('leave-button');
     const dynamicDateElement = document.getElementById('dynamic-date');
     let backgroundImage = document.getElementById('background-image');
-    let inputFileID = document.getElementById('inputFileID');
 
     const hasAccepted = localStorage.getItem('hasAccepted');
     if (!hasAccepted) {
@@ -26,6 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const customBackground = localStorage.getItem('customBackground');
     if (!customBackground) {
         backgroundImage.src = 'images/bg.JPG';
+        document.getElementById('current-image').src = 'images/bg.JPG';
+    }
+    else {
+        backgroundImage.src = `file://${customBackground}`;
+        document.getElementById('current-image').src = `file://${customBackground}`;
     }
 
     acceptButton.addEventListener('click', function () {
@@ -147,53 +151,45 @@ function hideInfo() {
 }
 
 function uploadImage() {
-    const input = document.getElementById('imageInput');
-    const filePath = input.files[0].path;
+    ipcRenderer.send('open-file-dialog');
 
-    const imagesFolderPath = path.join(app.getPath('userData'), 'images');
-    if (!fs.existsSync(imagesFolderPath)) {
-        fs.mkdirSync(imagesFolderPath, { recursive: true });
-    }
+    ipcRenderer.on('file-dialog-closed', (event, filePath) => {
+        console.log('Selected image path:', filePath);
 
-    const destinationFileName = `background${path.extname(filePath)}`;
-    const destinationPath = path.join(imagesFolderPath, destinationFileName);
-
-    fs.copyFileSync(filePath, destinationPath);
-
-    const imageInfo = {
-        filename: destinationFileName,
-        originalPath: filePath,
-        destinationPath: destinationPath,
-    };
-
-    ipcRenderer.send('upload-image', imageInfo);
-
-    setBackgroundImage(destinationPath);
-}
-
-function setBackgroundImage(imagePath) {
-    const backgroundImage = document.getElementById('backgroundImage');
-    const inputFileID = document.getElementById('inputFileID');
-
-    if (backgroundImage) {
-        backgroundImage.src = `file://${imagePath}`;
-    }
-    localStorage.setItem('customBackground', true);
-    inputFileID.innerHTML = 'Background uploaded!';
+        localStorage.setItem('customBackground', filePath);
+        document.getElementById('inputFileID').innerHTML = 'Background uploaded!';
+        document.getElementById('current-image').src = `file://${filePath}`;
+        setTimeout(function () {
+            location.reload();
+        }, 1000);
+    });
 }
 
 function resetSettings() {
-    const resetButton = document.getElementById('reset-button');
-    if (resetButton) {
-        resetButton.value = 'Done!';
-    }
-    localStorage.removeItem('pocetakVezeDate');
-    localStorage.removeItem('hasAccepted');
-    localStorage.removeItem('customBackground');
-    setTimeout(function () {
-        quitApp();
-    }, 1000);
+    ipcRenderer.send('ask-reset');
+
+    ipcRenderer.on('reset-confirmation', (event, isConfirmed) => {
+        const resetButton = document.getElementById('reset-button');
+
+        if (resetButton) {
+            if (isConfirmed) {
+                resetButton.value = 'Done!';
+                localStorage.removeItem('pocetakVezeDate');
+                localStorage.removeItem('hasAccepted');
+                localStorage.removeItem('customBackground');
+                setTimeout(function () {
+                    quitApp();
+                }, 1000);
+            } else {
+                resetButton.value = 'Cancelled!';
+                setTimeout(function () {
+                    resetButton.value = 'Reset to Default';
+                }, 1000);
+            }
+        }
+    });
 }
+
 
 function quitApp() {
     ipcRenderer.send('app-quit');

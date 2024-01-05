@@ -1,6 +1,8 @@
 body {
     margin: 0;
     padding: 0;
+    height: 300px;
+    width: 600px;
     font-family: 'Pacifico', cursive;
     overflow-y: hidden;
     user-select: none;
@@ -123,8 +125,7 @@ h1 {
     transform: translate(-50%, -50%);
 }
 
-#settings button,
-#info button {
+.x-button {
     position: absolute;
     top: 1%;
     right: 1%;
@@ -134,8 +135,7 @@ h1 {
     transition: 0.3s;
 }
 
-#settings button:hover,
-#info button:hover {
+.x-button:hover {
     background-color: rgb(165, 0, 0);
     border-radius: 5%;
 }
@@ -191,10 +191,6 @@ h1 {
     color: #fff;
 }
 
-input[type="file"] {
-    display: none;
-}
-
 .inputFile,
 #reset-button {
     padding: 10px;
@@ -214,6 +210,28 @@ input[type="file"] {
 #reset-button:hover {
     background-color: #4e4e4e;
     color: #fff;
+}
+
+.cijelo {
+    display: flex;
+}
+
+.pola {
+    flex: 1;
+    width: 50%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.pola span {
+    text-align: center;
+}
+
+#current-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
 }
 
 .font {
