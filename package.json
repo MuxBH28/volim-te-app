@@ -1,6 +1,6 @@
 {
   "name": "volim-te-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "VolimTeApp is a delightful application designed to cherish and celebrate the beautiful journey of love.",
   "main": "main.js",
   "scripts": {
@@ -39,9 +39,16 @@
   },
   "homepage": "https://sehic.rf.gd/volimte",
   "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.8",
+    "@electron/rebuild": "^3.5.0",
     "electron": "^28.0.0",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.9.1",
+    "electron-prebuilt": "^1.4.13",
+    "electron-rebuild": "^3.2.9"
   },
+  "type": "commonjs",
   "build": {
     "appId": "com.sehic.volimte",
     "productName": "Volim Te App",
@@ -54,11 +61,19 @@
     },
     "win": {
       "icon": "images/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   },
   "dependencies": {
+    "electron-online": "^1.0.0",
     "electron-updater": "^6.1.7",
     "electron-window-state-manager": "^0.3.2",
+    "lowdb": "^7.0.1",
+    "moment": "^2.30.1",
+    "nedb": "^1.8.0",
     "single-instance-lock": "^1.0.2"
   }
 }

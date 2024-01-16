@@ -17,6 +17,12 @@
         <div id="draggable-area"><i class="fa-solid fa-up-down-left-right"></i></div>
         <div>|</div>
         <div>
+            <button onclick="showNotifications()"><i class="fa-solid fa-bell"></i></button>
+        </div>
+        <div>
+            <button onclick="showMemories()"><i class="fa-solid fa-note-sticky"></i></button>
+        </div>
+        <div>
             <button onclick="showSettings()"><i class="fa-solid fa-gear"></i></button>
         </div>
         <div>
@@ -26,16 +32,36 @@
             <button onclick="quitApp()"><i class="fa-solid fa-circle-xmark"></i></button>
         </div>
     </div>
+    <div id="container2">
+        Volim te App <span app-version></span>
+    </div>
 
     <div id="settings">
-        <h2>Settings | <span class="font">Volim te App</span></h2>
+        <h2><i class="fa-solid fa-gear"></i> Settings | <span class="font">Volim te App</span></h2>
         <hr>
         <div class="cijelo">
             <div class="pola">
-                <button id="inputFileID" class="inputFile" onclick="uploadImage()">Change background</button>
-                <p><input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"></p>
-                <p>Report a bug: <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank"><i
-                            class="fa-solid fa-bug"></i></a></p>
+                <div class="cijelo">
+                    <div class="pola"><span>Autostart App</span>
+                        <label class="switch">
+                            <input type="checkbox" id="autoStartSwitch" onclick="setAutoStart()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="pola"><span>Auto Updates</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notificatiosnSwitch" disabled checked
+                                onclick="nostificationSwitch()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <button id="inputFileID" class="inputFile" onclick="uploadImage()">Change background</button><br>
+                <input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"><br>
+                <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank">
+                    <button id="inputFileID" class="inputFile" onclick="uploadImage()">Report a bug <i
+                            class="fa-solid fa-bug"></i></button>
+                </a>
             </div>
             <div class="pola">
                 <span>Current image:</span><br>
@@ -46,7 +72,7 @@
     </div>
 
     <div id="info">
-        <h2>Info | <span class="font">Volim te App</span></h2>
+        <h2><i class="fa-solid fa-info-circle"></i> Info | <span class="font">Volim te App</span></h2>
         <hr>
         <ul>
             <li>Version: <span app-version></span>
@@ -54,26 +80,172 @@
             <li>Date of last update: <span id="versionDate"></span></li>
             <li>Author: M.Šehić</li>
             <li>Website: <a href="https://sehic.rf.gd/" target="_blank">www.sehic.rf.gd</a></li>
+            <li>Images: <a href="https://pixabay.com/" target="_blank">www.pixabay.com</a></li>
             <li>Disclaimer: <a href="https://sehic.rf.gd/volimte#disclaimer"
                     target="_blank">www.sehic.rf.gd/volimte#disclaimer</a></li>
         </ul>
+        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
+            data-name="bmc-button" data-slug="sehic" data-color="#FFDD00" data-emoji="" data-font="Cookie"
+            data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000"
+            data-coffee-color="#ffffff"></script>
         <button class="x-button" onclick="hideInfo()">x</button>
     </div>
-    <div id="main-container">
-        <div id="popup-container">
-            <div class="popup-info">
-                <h1 class="font">Volim te App</h1>
-                <h3>Welcome to <span class="font">Volim te App</span> <span app-version></span></h3>
-                <p>By using this app, you agree to <a href="https://sehic.rf.gd/volimte#disclaimer"
-                        target="_blank">Volim te App
-                        Disclaimer</a>
-                </p>
-                <label for="pocetakveze">Enter your date:</label>
-                <input type="date" id="pocetakveze" value="2003-12-28"><br>
-                <button id="accept-button">Accept</button>
-                <button id="leave-button">Leave</button>
+
+    <div id="notifications">
+        <h2><i class="fa-solid fa-bell"></i> Reminders | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div class="cijelo">
+            <div class="pola">
+                <div class="cijelo">
+                    <div class="pola"><span>Enable<br> reminders</span>
+                        <label class="switch">
+                            <input type="checkbox" id="notificationSwitch" onclick="setNotifications()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="pola"><span>Week-Before<br> reminders</span><!--7 day reminders b4-->
+                        <label class="switch">
+                            <input type="checkbox" id="weekBeforeSwitch" disabled onclick="setWeekBeforeSwitch()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="pola">
+                <div class="cijelo">
+                    <div class="pola"><!--Pocetak veze-->
+                        <span>Relationship start</span>
+                        <label for="startDate">Enter your date:</label>
+                        <input type="date" id="startDate" placeholder="dd/mm/yyyy" value="" min="1980-05-04"
+                            max="2025-12-31">
+                    </div>
+                    <div class="pola"><!--Birthday-->
+                        <span>Birthday</span>
+                        <label for="birthdayDate">Enter your date:</label>
+                        <input type="date" id="birthdayDate" placeholder="dd/mm/yyyy" value="" min="1980-05-04"
+                            max="2025-12-31">
+                    </div>
+                </div>
             </div>
         </div>
+        <br>
+        <hr class="hr30">
+        <div class="cijelo">
+            <div class="pola">
+                <div class="cijelo">
+                    <div class="pola"><span>Anniversary<br> notifications</span>
+                        <label class="switch">
+                            <input type="checkbox" id="annNotificationSwitch" onclick="setAnnNotifications()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="pola"><span>Desktop notifications</span>
+                        <label class="switch">
+                            <input type="checkbox" id="desktopNotificationSwitch" onclick="setDesktopNotifications()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="pola"><!--Birthday-->
+                <div class="cijelo">
+                    <div class="pola"><span>Birthday<br> notification</span>
+                        <label class="switch">
+                            <input type="checkbox" id="birthdayNotificationSwitch" onclick="setBirthdayNotifications()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="pola">
+                        <span id="saveDatesSpan">Save dates:</span>
+                        <button id="saveDatesButton" onclick="saveDates()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="x-button" onclick="hideNotifications()">x</button>
+    </div>
+    <div id="memories">
+        <h2><i class="fa-solid fa-note-sticky"></i> Memories | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div id="memoriesContainer"></div>
+        <h5 id="noMemoriesSpan">Add a new memory by clicking <i class="fa-solid fa-pencil"></i> <i>New</i> button
+        </h5>
+        <button class="new-memory-button" onclick="showNewMemory()"><i class="fa-solid fa-pencil"></i> New</button>
+        <button class="x-button" onclick="hideMemories()">x</button>
+    </div>
+    <div id="newMemoryBox">
+        <h2><i class="fa-solid fa-pencil"></i> New memory:</h2>
+        <hr>
+        <label for="inputMemoryName">Memory header:</label>
+        <input type="text" id="inputMemoryName" maxlength="64" placeholder="Max charaters 64" required><br>
+        <label for="inputMemoryTextArea">Memory message:</label><br>
+        <textarea id="inputMemoryTextArea" name="inputMemoryTextArea" rows="6" cols="60" maxlength="256"
+            placeholder="Max charaters 256" required></textarea><br>
+        <button class="save-memory" onclick="saveMemory()" id="saveMemoryButton"><i class="fa-solid fa-floppy-disk"></i>
+            Save</button>
+        <button class="x-button" onclick="hideNewMemory()">x</button>
+    </div>
+    <div id="popup-container">
+        <div class="popup-info">
+            <h1 class="font">Volim te App</h1>
+            <h3>Welcome to <span class="font">Volim te App</span> <span app-version></span></h3>
+            <p>By using this app, you agree to <a href="https://sehic.rf.gd/volimte#disclaimer" target="_blank">Volim te
+                    App
+                    Disclaimer</a>
+            </p>
+            <label for="pocetakveze">Enter your date:</label>
+            <input type="date" id="pocetakveze" value="2003-12-28"><br>
+            <button id="accept-button">Accept</button>
+            <button id="leave-button">Leave</button>
+        </div>
+    </div>
+    <!--Godisnjica-->
+    <div id="reminderPopup" class="hidden">
+        <img src="images/godisnjicabg.jpg" alt="Background image for anniversary">
+        <div class="popup-info">
+            <h1 class="font">Volim te App</h1>
+            <div id="anniversary-day" class="hidden">
+                <h2 class="pulsate-fwd">Happy anniversary</h2>
+                <p>It looks like it's your anniversary today!<br>Remember to share your love with your one true love
+                </p>
+                <p>You have been together for <span id="number-of-years"></span>.</p>
+            </div>
+            <div id="week-b4-anniversary-day" class="hidden">
+                <h2 class="pulsate-fwd">Anniversary is in 7 days!</h2>
+                <p>It looks like it's your anniversary coming up!<br>Don't forget to surprise your one true love
+                    with a
+                    thoughtful present!
+                </p>
+            </div>
+            <p>Have a wonderfull day!</p>
+        </div>
+        <button class="x-button" onclick="hideReminder()">x</button>
+    </div>
+    <!--Birthday-->
+    <div id="BreminderPopup" class="hidden">
+        <img src="images/birthdaybg.jpg" alt="Background image for birthday">
+        <div class="popup-info">
+            <h1 class="font">Volim te App</h1>
+            <div id="birthday-day" class="hidden">
+                <h2 class="pulsate-fwd">Happy birthday!</h2>
+                <p>... to your true love!</p>
+                <p>It looks like it's today the birthday! 🎉🎂<br>Remember to share your love with your one true
+                    love
+                </p>
+                <p>Your love just turned <span id="number-of-birthday-years"></span>.</p>
+            </div>
+            <div id="week-b4-birthday-day" class="hidden">
+                <h2 class="pulsate-fwd">Birthday is in 7 days!</h2>
+                <p>... to your true love!</p>
+                <p>It looks like it's someone's 🎉🎂 birthday coming up 😉<br>Remember to share your love with your
+                    one
+                    true love</p>
+            </div>
+            <p>Have a wonderfull day!</p>
+        </div>
+        <button class="x-button" onclick="hideReminderB()">x</button>
+    </div>
+    <div id="main-container">
         <img id="background-image" src="images/background.jpg" alt="Background image">
         <div id="text-overlay">
             <h1 id="ILoveYou">Volim te</h1>
@@ -83,8 +255,10 @@
     </div>
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="js/scripts.js"></script>
 <script src="js/version.js"></script>
 <script src="js/iloveyou.js"></script>
-<script src="js/scripts.js"></script>
+<script src="js/reminders.js"></script>
+<script src="js/memories.js"></script>
 
 </html>

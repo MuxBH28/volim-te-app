@@ -16,7 +16,18 @@ body {
     position: fixed;
     top: 0;
     right: 0;
-    padding: 10px;
+    background: rgba(104, 104, 104, 0.5);
+    border-bottom-left-radius: 14px;
+    z-index: 10;
+}
+
+#container2 {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    font-size: smaller;
+    opacity: 50%;
     z-index: 10;
 }
 
@@ -108,12 +119,15 @@ h1 {
 }
 
 #settings,
-#info {
+#info,
+#notifications,
+#memories,
+#newMemoryBox {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
     z-index: 11;
     width: 90%;
-    height: 80%;
+    height: 90%;
     background-color: lightgray;
     opacity: 0;
     border-radius: 2%;
@@ -123,6 +137,80 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+#memories {
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+.memory {
+    padding: 5px;
+    margin: 6px;
+    margin-bottom: 10px;
+    background-color: #f0ffbc;
+    border: 1px solid #000d16;
+    border-left: 5px solid #000d16;
+    border-radius: 12px;
+    transition: 0.5s;
+}
+
+.memory:hover {
+    background-color: #cfcd58;
+    user-select: text;
+}
+
+.memory h3 {
+    margin: 0%;
+}
+
+.memory-date {
+    opacity: 50%;
+}
+
+.memory:hover .memory-date {
+    opacity: 100%;
+}
+
+.delete-button {
+    float: right;
+    padding: 13px;
+    border-radius: 12px;
+    margin: 5px;
+    user-select: none;
+    border: 1px solid #f0ffbc;
+    transition: 0.5s;
+}
+
+.delete-button:hover {
+    border: 1px solid red;
+}
+
+.delete-button:active {
+    background-color: red;
+}
+
+.new-memory-button {
+    position: absolute;
+    top: 1%;
+    right: 10%;
+    padding: 15px;
+    background-color: #f0ffbc;
+    border-radius: 10%;
+    user-select: none;
+    transition: 0.3s;
+}
+
+.new-memory-button:hover {
+    background-color: #cfcd58;
+}
+
+#settings h2,
+#info h2,
+#notifications h2,
+#memories h2,
+#newMemoryBox h2 {
+    margin: 0%;
 }
 
 .x-button {
@@ -161,10 +249,15 @@ h1 {
 
 .popup-info {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: #fff;
+    height: 100%;
+    width: 80%;
+    color: white;
+    background-color: #00000069;
     border: 1px solid #ff0000;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -191,23 +284,26 @@ h1 {
     color: #fff;
 }
 
-.inputFile,
-#reset-button {
+input[type=button],
+.pola button {
     padding: 10px;
     margin: 5px;
-    background-color: #3498db;
+    margin-bottom: 0%;
+    width: 95%;
+    background-color: #000d16;
     color: #fff;
     cursor: pointer;
     border: none;
-    border-radius: 4px;
+    border-radius: 20px;
     font-size: 16px;
     transition: 0.3s;
+    text-align: center;
 }
 
 #accept-button:hover,
 #leave-button:hover,
-.inputFile:hover,
-#reset-button:hover {
+.slider:hover,
+input:checked+.slider:hover {
     background-color: #4e4e4e;
     color: #fff;
 }
@@ -225,14 +321,98 @@ h1 {
 
 .pola span {
     text-align: center;
+    margin-bottom: 5px;
+}
+
+.pola label span {
+    margin: 0px;
+}
+
+.hr30 {
+    width: 50%;
+    border: 1px solid #000d16;
+}
+
+input[type=button]:hover,
+.pola button:hover {
+    background-color: #4e4e4e;
+    color: #fff;
+}
+
+.pola .cijelo .pola {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0%;
 }
 
 #current-image {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 30%;
+    width: 95%;
 }
+
+.hidden {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-bottom: 0%;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #838383;
+    border-radius: 17px;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #000d16;
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #000d16;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
 
 .font {
     font-family: 'Pacifico', cursive;
@@ -244,6 +424,7 @@ h1 {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    cursor: progress;
     background-color: wheat;
 }
 
@@ -280,4 +461,114 @@ h1 {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.pulsate-fwd {
+    -webkit-animation: pulsate-fwd 1.5s ease-in-out infinite both;
+    animation: pulsate-fwd 1.5s ease-in-out infinite both;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2024-1-6 19:55:19
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info. 
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation pulsate-fwd
+ * ----------------------------------------
+ */
+@-webkit-keyframes pulsate-fwd {
+    0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+    50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+@keyframes pulsate-fwd {
+    0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+
+    50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+#reminderPopup,
+#BreminderPopup {
+    position: fixed;
+    z-index: 99;
+    background-color: #00000069;
+    width: 100%;
+    height: 100%;
+}
+
+#reminderPopup img,
+#BreminderPopup img {
+    width: 100%;
+    height: auto;
+}
+
+#noMemoriesSpan {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#newMemoryBox input[type=text],
+#newMemoryBox textarea {
+    margin: 6px;
+    padding: 6px;
+    border-radius: 12px;
+    resize: none;
+    border: 2px solid black;
+}
+
+#newMemoryBox label {
+    border-bottom: 1px solid black;
+}
+
+.save-memory {
+    padding: 8px;
+    background-color: #bbb800;
+    color: white;
+    border: 1px solid white;
+    border-radius: 6px;
+    width: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.5s;
+}
+
+.save-memory:hover {
+    background-color: #444300;
+    scale: 0.9;
+    width: 70%;
+
+}
+
+.save-memory:active {
+    width: 100%;
 }

@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const leaveButton = document.getElementById('leave-button');
     const dynamicDateElement = document.getElementById('dynamic-date');
     let backgroundImage = document.getElementById('background-image');
-
     const hasAccepted = localStorage.getItem('hasAccepted');
+    let autoStartSwitch = document.getElementById('autoStartSwitch');
+    const autoStartValue = localStorage.getItem('autoStart');
     if (!hasAccepted) {
         popupContainer.style.display = 'block';
     }
@@ -30,6 +31,11 @@ document.addEventListener('DOMContentLoaded', function () {
     else {
         backgroundImage.src = `file://${customBackground}`;
         document.getElementById('current-image').src = `file://${customBackground}`;
+    }
+    if (autoStartValue === null || autoStartValue === 'true') {
+        autoStartSwitch.checked = true;
+    } else {
+        autoStartSwitch.checked = false;
     }
 
     acceptButton.addEventListener('click', function () {
@@ -99,23 +105,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateTimer();
 
-    document.getElementById('close-btn').addEventListener('click', function () {
-        quitApp();
-    });
-
-    document.getElementById('minimize-btn').addEventListener('click', function () {
-        const window = remote.getCurrentWindow();
-        window.minimize();
-    });
-
-    document.getElementById('maximize-restore-btn').addEventListener('click', function () {
-        const window = remote.getCurrentWindow();
-        if (window.isMaximized()) {
-            window.unmaximize();
-        } else {
-            window.maximize();
-        }
-    });
 });
 
 function showSettings() {
@@ -150,6 +139,67 @@ function hideInfo() {
     }, 500);
 }
 
+function showNotifications() {
+    var notificationsDiv = document.getElementById('notifications');
+    notificationsDiv.style.display = 'block';
+    notificationsDiv.offsetHeight;
+    notificationsDiv.style.opacity = 1;
+}
+
+function hideNotifications() {
+    var notificationsDiv = document.getElementById('notifications');
+    notificationsDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        notificationsDiv.style.display = 'none';
+    }, 500);
+}
+function showMemories() {
+    var memoriesDiv = document.getElementById('memories');
+    memoriesDiv.style.display = 'block';
+    memoriesDiv.offsetHeight;
+    memoriesDiv.style.opacity = 1;
+}
+
+function hideMemories() {
+    var memoriesDiv = document.getElementById('memories');
+    memoriesDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        memoriesDiv.style.display = 'none';
+    }, 500);
+}
+function showNewMemory() {
+    var memoriesDiv = document.getElementById('newMemoryBox');
+    memoriesDiv.style.display = 'block';
+    memoriesDiv.offsetHeight;
+    memoriesDiv.style.opacity = 1;
+}
+
+function hideNewMemory() {
+    var newmemoriesDiv = document.getElementById('newMemoryBox');
+    newmemoriesDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        newmemoriesDiv.style.display = 'none';
+    }, 500);
+}
+function hideReminder() {
+    var reminderpopupDiv = document.getElementById('reminderPopup');
+    reminderpopupDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        reminderpopupDiv.style.display = 'none';
+    }, 500);
+}
+function hideReminderB() {
+    var BreminderpopupDiv = document.getElementById('BreminderPopup');
+    BreminderpopupDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        BreminderpopupDiv.style.display = 'none';
+    }, 500);
+}
 function uploadImage() {
     ipcRenderer.send('open-file-dialog');
 
@@ -165,6 +215,14 @@ function uploadImage() {
     });
 }
 
+function setAutoStart() {
+    let autoStartSwitch = document.getElementById('autoStartSwitch');
+
+    ipcRenderer.send('update-auto-start', autoStartSwitch.checked);
+
+    localStorage.setItem('autoStart', autoStartSwitch.checked);
+}
+
 function resetSettings() {
     ipcRenderer.send('ask-reset');
 
@@ -177,6 +235,8 @@ function resetSettings() {
                 localStorage.removeItem('pocetakVezeDate');
                 localStorage.removeItem('hasAccepted');
                 localStorage.removeItem('customBackground');
+                localStorage.removeItem('autoStart');
+                ipcRenderer.send('clear-database');
                 setTimeout(function () {
                     quitApp();
                 }, 1000);

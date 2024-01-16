@@ -2,51 +2,51 @@ const { app, BrowserWindow, screen, globalShortcut, ipcMain, shell, protocol, di
 const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
+const Datastore = require('nedb');
+
 let mainWindow;
 let loadingWindow;
+let db;
 
 const gotSingleLock = app.requestSingleInstanceLock();
-function checkForUpdates() {
-  autoUpdater.checkForUpdatesAndNotify();
-}
+
 if (!gotSingleLock) {
   app.quit();
 } else {
   app.whenReady().then(() => {
-    app.setLoginItemSettings({
-      openAtLogin: true,
-    });
-    createLoadingWindow();
-    protocol.registerBufferProtocol('custom', (request, callback) => {
-      const dataUrl = request.url.substr(11);
-      const buffer = Buffer.from(dataUrl, 'base64');
-      callback({ mimeType: 'image/png', data: buffer });
+    ipcMain.on('update-auto-start', (event, shouldOpenAtLogin) => {
+      app.setLoginItemSettings({
+        openAtLogin: shouldOpenAtLogin,
+      });
     });
 
+    db = new Datastore({ filename: 'nedb.db', autoload: true });
+    createLoadingWindow();
     app.on('activate', () => {
       if (mainWindow === null) {
         createWindow();
       }
     });
 
+    app.on('second-instance', () => {
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      }
+    });
+
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    });
+
+    app.on('before-quit', () => {
+      globalShortcut.unregisterAll();
+    });
+
   });
 
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
-
-  app.on('before-quit', () => {
-    globalShortcut.unregisterAll();
-  });
 }
 
 function createLoadingWindow() {
@@ -60,6 +60,8 @@ function createLoadingWindow() {
     width: 600,
     height: 300,
     frame: false,
+    skipTaskbar: false,
+    resizable: false,
     transparent: true,
     webPreferences: {
       nodeIntegration: true,
@@ -71,7 +73,7 @@ function createLoadingWindow() {
   setTimeout(() => {
     loadingWindow.hide();
     createWindow();
-  }, 2500);
+  }, 3500);
 }
 
 function createWindow() {
@@ -83,8 +85,8 @@ function createWindow() {
   const displays = screen.getAllDisplays();
   const targetDisplay = displays.find(display => display.bounds.x === 0 && display.bounds.y === 0) || displays[0];
   const { workArea } = targetDisplay;
-  const windowWidth = 600;//600
-  const windowHeight = 300;//300
+  const windowWidth = 600;
+  const windowHeight = 300;
 
   const x = workArea.width - windowWidth;
   const y = workArea.y;
@@ -103,7 +105,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       sandbox: false,
-      devTools: true,
+      devTools: false,
       webSecurity: true,
       contentSecurityPolicy: {
         directives: {
@@ -130,6 +132,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => { });
+
 ipcMain.on('focusWindow', () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
@@ -206,9 +209,53 @@ autoUpdater.on('error', (error) => {
   });
 });
 
+ipcMain.on('save-memory', (event, memoryData) => {
+  db.insert(memoryData, (err, newMemory) => {
+    if (err) {
+      console.error('Error saving memory:', err);
+      return;
+    }
+
+    event.sender.send('memory-saved', newMemory);
+  });
+});
+
+ipcMain.on('fetch-memories', (event) => {
+  db.find({}, (err, memories) => {
+    if (err) {
+      console.error('Error fetching memories:', err);
+      return;
+    }
+
+    event.sender.send('memories-fetched', memories);
+  });
+});
+
+ipcMain.on('delete-memory', (event, memoryId) => {
+  const confirmationDel = dialog.showMessageBoxSync({
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Volim Te App asks:',
+    message: 'Are you sure you want to delete this memory?',
+  });
+
+  if (confirmationDel === 0) {
+    db.remove({ _id: memoryId }, {}, (err, numRemoved) => {
+      if (err) {
+        console.error('Error deleting memory:', err);
+        return;
+      }
+
+      event.sender.send('memory-deleted', memoryId);
+    });
+  }
+});
+ipcMain.on('clear-data-request', () => {
+  db.remove({}, { multi: true });
+});
 
 ipcMain.on('app-quit', (event) => {
-
   const confirmation = dialog.showMessageBoxSync({
     type: 'question',
     buttons: ['Yes', 'No'],
@@ -218,7 +265,6 @@ ipcMain.on('app-quit', (event) => {
   });
 
   if (confirmation === 0) {
-    globalShortcut.unregisterAll();
     app.quit();
   }
 });
@@ -233,6 +279,8 @@ ipcMain.on('ask-reset', async (event) => {
   });
   event.reply('reset-confirmation', confirmation.response === 0);
 });
+
 app.on('before-quit', () => {
   globalShortcut.unregisterAll();
+  db.persistence.compactDatafile();
 });
