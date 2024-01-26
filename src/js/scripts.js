@@ -2,8 +2,6 @@ const { ipcRenderer, remote, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const electron = require('electron');
-const { dialog } = electron;
-
 document.addEventListener('DOMContentLoaded', function () {
     const popupContainer = document.getElementById('popup-container');
     let fixedDateElement = document.getElementById('fixed-date');
@@ -14,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hasAccepted = localStorage.getItem('hasAccepted');
     let autoStartSwitch = document.getElementById('autoStartSwitch');
     const autoStartValue = localStorage.getItem('autoStart');
+
     if (!hasAccepted) {
         popupContainer.style.display = 'block';
     }
@@ -34,8 +33,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (autoStartValue === null || autoStartValue === 'true') {
         autoStartSwitch.checked = true;
+        setAutoStart();
+
     } else {
         autoStartSwitch.checked = false;
+        setAutoStart();
+
     }
 
     acceptButton.addEventListener('click', function () {
@@ -200,6 +203,21 @@ function hideReminderB() {
         BreminderpopupDiv.style.display = 'none';
     }, 500);
 }
+function showCards() {
+    var cardsDiv = document.getElementById('cards');
+    cardsDiv.style.display = 'block';
+    cardsDiv.offsetHeight;
+    cardsDiv.style.opacity = 1;
+}
+
+function hideCards() {
+    var cardsDiv = document.getElementById('cards');
+    cardsDiv.style.opacity = 0;
+
+    setTimeout(function () {
+        cardsDiv.style.display = 'none';
+    }, 500);
+}
 function uploadImage() {
     ipcRenderer.send('open-file-dialog');
 
@@ -222,6 +240,15 @@ function setAutoStart() {
 
     localStorage.setItem('autoStart', autoStartSwitch.checked);
 }
+function configureAppSize() {
+    let autoStartSwitch = document.getElementById('configureWindowSizeButton');
+
+    ipcRenderer.send('configure-window-size');
+    autoStartSwitch.innerHTML = "Done!"
+    setTimeout(function () {
+        autoStartSwitch.innerHTML = "Configure Window size"
+    }, 1000);
+}
 
 function resetSettings() {
     ipcRenderer.send('ask-reset');
@@ -232,19 +259,12 @@ function resetSettings() {
         if (resetButton) {
             if (isConfirmed) {
                 resetButton.value = 'Done!';
-                localStorage.removeItem('pocetakVezeDate');
-                localStorage.removeItem('hasAccepted');
-                localStorage.removeItem('customBackground');
-                localStorage.removeItem('autoStart');
                 ipcRenderer.send('clear-database');
-                setTimeout(function () {
-                    quitApp();
-                }, 1000);
+                ['pocetakVezeDate', 'hasAccepted', 'customBackground', 'autoStart', 'notifications', 'week-before', 'ann-notifications', 'desktop-notifications', 'birthday-notifications', 'notificationPreferenceDesktop', 'rodjendan', 'language'].forEach(key => localStorage.removeItem(key));
+                setTimeout(quitApp, 1000);
             } else {
                 resetButton.value = 'Cancelled!';
-                setTimeout(function () {
-                    resetButton.value = 'Reset to Default';
-                }, 1000);
+                setTimeout(() => resetButton.value = 'Reset App', 1000);
             }
         }
     });

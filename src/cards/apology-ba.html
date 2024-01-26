@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apology</title>
+    <style>
+        body {
+            font-family: 'Pacifico', cursive;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            z-index: -1;
+        }
+
+        .container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5%;
+            max-width: 70%;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Add position relative to establish stacking context */
+            z-index: 1;
+            /* Set z-index higher than .bg and .bgimg to bring it to the front */
+        }
+
+        h3 {
+            color: #e44d26;
+        }
+
+        .dear {
+            text-align: left;
+        }
+
+        .dear2 {
+            text-align: right;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg">
+        <div class="container">
+            <h3>🥺 Sorry</h3>
+            <img src="../images/apology.jpg" width="25%" height="auto">
+            <h4 class="dear">Moje sve, <span id="soulmate">N/A</span></h4>
+            <div class="text">
+                <p>Nadam se da ti ova poruka stiže u dobrom stanju. Pišem ti s teškim srcem i dubokim osjećajem kajanja
+                    zbog mojih nedavnih postupaka. Shvatam da sam te povrijedio/la, i zbog toga iskreno žalim.
+                </p>
+                <p>Želim da znaš da moje namjere nikada nisu bile da ti uzrokujem bol ili neugodnosti. U retrospektivi,
+                    shvatam da su moje riječi/postupci bili bezbrižni, i preuzimam potpunu odgovornost za njihov uticaj
+                    na tebe. Duboko žalim zbog bilo kakve patnje koju sam mogao/la izazvati.</p>
+                <p>Razumijem da je isprika samo prvi korak, i posvećen/a sam da ispravim svoje postupke. Voljan/na sam
+                    saslušati tvoju perspektivu, i ako želiš, cijenio/la bih priliku za otvoren i iskren razgovor kako
+                    bih bolje razumio/la tvoje osjećaje.</p>
+                <p>Želim da znaš da cijenim naš odnos, i boli me pomisao da sam ga dovela/o u pitanje. Posvećen/na sam
+                    učenju iz ovog iskustva i preduzimanju potrebnih koraka kako bih osigurao/la da se ne ponovi.
+                </p>
+                <p>Još jednom, iskreno se izvinjavam za svaku bol koju sam ti prouzrokovao/la. Tvoje oprost znači mi
+                    puno, i nadam se da možemo pronaći način da prevaziđemo ovo.</p>
+                <p>Hvala ti što si izdvojio/la vrijeme da pročitaš moju poruku. Tu sam kada god budeš spreman/na
+                    razgovarati.</p>
+            </div>
+            <h4 class="dear2">Tvoje jedino,
+                <br><span id="username">N/A</span>
+            </h4>
+        </div>
+        <small style="opacity: 10%;">Made with <a href="https://sehic.rf.gd/volimte" target="_blank">Volim Te
+                App</a></small>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Listen for parameters from the main process
+        ipcRenderer.on('set-parameters', (event, { username, soulmate }) => {
+            document.getElementById('soulmate').innerText = soulmate;
+            document.getElementById('username').innerText = username;
+        });
+    </script>
+</body>
+
+</html>

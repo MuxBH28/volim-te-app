@@ -23,6 +23,9 @@
             <button onclick="showMemories()"><i class="fa-solid fa-note-sticky"></i></button>
         </div>
         <div>
+            <button onclick="showCards()"><i class="fa-solid fa-file-pdf"></i></button>
+        </div>
+        <div>
             <button onclick="showSettings()"><i class="fa-solid fa-gear"></i></button>
         </div>
         <div>
@@ -48,20 +51,16 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-                    <div class="pola"><span>Auto Updates</span>
-                        <label class="switch">
-                            <input type="checkbox" id="notificatiosnSwitch" disabled checked
-                                onclick="nostificationSwitch()">
-                            <span class="slider"></span>
-                        </label>
+                    <div class="pola">
+                        <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank">
+                            <button id="inputFileID" class="inputFile" onclick="uploadImage()">Report a bug <i
+                                    class="fa-solid fa-bug"></i></button>
+                        </a>
                     </div>
                 </div>
                 <button id="inputFileID" class="inputFile" onclick="uploadImage()">Change background</button><br>
-                <input type="button" id="reset-button" value="Reset to Default" onclick="resetSettings()"><br>
-                <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank">
-                    <button id="inputFileID" class="inputFile" onclick="uploadImage()">Report a bug <i
-                            class="fa-solid fa-bug"></i></button>
-                </a>
+                <button onclick="configureAppSize()" id="configureWindowSizeButton"> Configure Window size</button><br>
+                <input type="button" id="reset-button" value="Reset App" onclick="resetSettings()">
             </div>
             <div class="pola">
                 <span>Current image:</span><br>
@@ -70,7 +69,49 @@
         </div>
         <button class="x-button" onclick="hideSettings()">x</button>
     </div>
-
+    <div id="cards">
+        <h2><i class="fa-solid fa-file"></i> Cards | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div class="cijelo">
+            <div class="pola">
+                <div class="cijelo">
+                    <div class="pola">
+                        <h3>Username:</h3>
+                        <p id="username">Muhammed</p>
+                    </div>
+                    <div class="pola">
+                        <h3>Soulmate: </h3>
+                        <p id="soulmate">Emina</p>
+                    </div>
+                </div>
+                <button onclick="changeUsername()">Change username</button><br>
+                <button onclick="changeSoulmate()">Change soulmate</button><br>
+                <div class="cijelo">
+                    <div class="pola">
+                        <button id="engBtn" onclick="setLanguage('eng')">🇬🇧 English</button>
+                    </div>
+                    <div class="pola">
+                        <button id="baBtn" onclick="setLanguage('ba')">🇧🇦 Bosnian</button>
+                    </div>
+                </div>
+            </div>
+            <div class="pola">
+                <h3><i class="fa-solid fa-file-pdf"></i> Print cards:</h3><br>
+                <div class="cijelo">
+                    <div class="pola">
+                        <button onclick="generateCard('cardBirthday')">🎂<br>Birthday</button>
+                        <button onclick="generateCard('cardValentine')">💘<br>Valentine</button>
+                    </div>
+                    <div class="pola">
+                        <button onclick="generateCard('cardAnniversary')">👩‍❤️‍👨<br>Anniversary</button>
+                        <button onclick="generateCard('cardMarriageCertificate')">💍<br>Marriage cert.</button>
+                    </div>
+                </div>
+                <button onclick="generateCard('cardApology')">🥺 Apology</button>
+            </div>
+        </div>
+        <button class=" x-button" onclick="hideCards()">x</button>
+    </div>
     <div id="info">
         <h2><i class="fa-solid fa-info-circle"></i> Info | <span class="font">Volim te App</span></h2>
         <hr>
@@ -168,9 +209,11 @@
         <h2><i class="fa-solid fa-note-sticky"></i> Memories | <span class="font">Volim te App</span></h2>
         <hr>
         <div id="memoriesContainer"></div>
-        <h5 id="noMemoriesSpan">Add a new memory by clicking <i class="fa-solid fa-pencil"></i> <i>New</i> button
+        <h5 id="noMemoriesSpan">Add a new memory by clicking <i class="fa-solid fa-pencil"></i> <i>New</i>
+            button
         </h5>
-        <button class="new-memory-button" onclick="showNewMemory()"><i class="fa-solid fa-pencil"></i> New</button>
+        <button class="new-memory-button" onclick="showNewMemory()"><i class="fa-solid fa-pencil"></i>
+            New</button>
         <button class="x-button" onclick="hideMemories()">x</button>
     </div>
     <div id="newMemoryBox">
@@ -206,7 +249,8 @@
             <h1 class="font">Volim te App</h1>
             <div id="anniversary-day" class="hidden">
                 <h2 class="pulsate-fwd">Happy anniversary</h2>
-                <p>It looks like it's your anniversary today!<br>Remember to share your love with your one true love
+                <p>It looks like it's your anniversary today!<br>Remember to share your love with your one true
+                    love
                 </p>
                 <p>You have been together for <span id="number-of-years"></span>.</p>
             </div>
@@ -237,7 +281,8 @@
             <div id="week-b4-birthday-day" class="hidden">
                 <h2 class="pulsate-fwd">Birthday is in 7 days!</h2>
                 <p>... to your true love!</p>
-                <p>It looks like it's someone's 🎉🎂 birthday coming up 😉<br>Remember to share your love with your
+                <p>It looks like it's someone's 🎉🎂 birthday coming up 😉<br>Remember to share your love with
+                    your
                     one
                     true love</p>
             </div>
@@ -260,5 +305,6 @@
 <script src="js/iloveyou.js"></script>
 <script src="js/reminders.js"></script>
 <script src="js/memories.js"></script>
+<script src="js/cards.js"></script>
 
 </html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apology</title>
+    <style>
+        body {
+            font-family: 'Pacifico', cursive;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            z-index: -1;
+        }
+
+        .container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5%;
+            max-width: 70%;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Add position relative to establish stacking context */
+            z-index: 1;
+            /* Set z-index higher than .bg and .bgimg to bring it to the front */
+        }
+
+        h3 {
+            color: #e44d26;
+        }
+
+        .dear {
+            text-align: left;
+        }
+
+        .dear2 {
+            text-align: right;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg">
+        <div class="container">
+            <h3>🥺 Sorry</h3>
+            <img src="../images/apology.jpg" width="25%" height="auto">
+            <h4 class="dear">Dear <span id="soulmate">N/A</span></h4>
+            <div class="text">
+                <p>I hope this message finds you well. I am writing to you with a heavy heart and a deep sense of
+                    remorse for my recent actions. I realize that I have hurt you, and for that, I am truly sorry.
+                </p>
+                <p>I want you to know that my intentions were never to cause you any pain or distress. In hindsight, I
+                    see that my words/actions were thoughtless, and I take full responsibility for the impact they had
+                    on you. I deeply regret any hurt I may have caused.</p>
+                <p>I understand that an apology is just the first step, and I am committed to making amends. I am
+                    willing to listen to your perspective, and if you're comfortable, I would appreciate the opportunity
+                    to have an open and honest conversation to better understand your feelings.</p>
+                <p>Please know that I value our relationship, and it pains me to think that I have jeopardized it. I am
+                    dedicated to learning from this experience and making the necessary changes to ensure that it
+                    doesn't happen again.
+                </p>
+                <p>Once again, I am sincerely sorry for any pain I've caused. Your forgiveness means a lot to me, and I
+                    hope we can find a way to move past this.</p>
+                <p>Thank you for taking the time to read my message. I am here whenever you're ready to talk.</p>
+            </div>
+            <h4 class="dear2">Sincerely,
+                <br><span id="username">N/A</span>
+            </h4>
+        </div>
+        <small style="opacity: 10%;">Made with <a href="https://sehic.rf.gd/volimte" target="_blank">Volim Te
+                App</a></small>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Listen for parameters from the main process
+        ipcRenderer.on('set-parameters', (event, { username, soulmate }) => {
+            document.getElementById('soulmate').innerText = soulmate;
+            document.getElementById('username').innerText = username;
+        });
+    </script>
+</body>
+
+</html>

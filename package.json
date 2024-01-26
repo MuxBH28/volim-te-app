@@ -1,6 +1,6 @@
 {
   "name": "volim-te-app",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "VolimTeApp is a delightful application designed to cherish and celebrate the beautiful journey of love.",
   "main": "main.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "Love Anniversary App"
   ],
   "author": "Muhammed Šehić",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/MuxBH28/volim-te-app/issues"
   },
@@ -69,11 +69,17 @@
   },
   "dependencies": {
     "electron-online": "^1.0.0",
+    "electron-pdf-window": "^1.0.12",
+    "electron-prompt": "^1.7.0",
+    "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
     "electron-window-state-manager": "^0.3.2",
+    "express": "^4.18.2",
     "lowdb": "^7.0.1",
     "moment": "^2.30.1",
+    "multer": "^1.4.5-lts.1",
     "nedb": "^1.8.0",
+    "pdfkit": "^0.14.0",
     "single-instance-lock": "^1.0.2"
   }
 }

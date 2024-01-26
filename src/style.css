@@ -1,8 +1,6 @@
 body {
     margin: 0;
     padding: 0;
-    height: 300px;
-    width: 600px;
     font-family: 'Pacifico', cursive;
     overflow-y: hidden;
     user-select: none;
@@ -122,7 +120,8 @@ h1 {
 #info,
 #notifications,
 #memories,
-#newMemoryBox {
+#newMemoryBox,
+#cards {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
     z-index: 11;
@@ -205,11 +204,29 @@ h1 {
     background-color: #cfcd58;
 }
 
+.help-button {
+    position: absolute;
+    top: 1%;
+    right: 10%;
+    padding: 15px;
+    color: white;
+    background-color: #000d16;
+    border-radius: 10%;
+    user-select: none;
+    transition: 0.3s;
+}
+
+.help-button:hover {
+    background-color: #4e4e4e;
+}
+
 #settings h2,
 #info h2,
 #notifications h2,
 #memories h2,
-#newMemoryBox h2 {
+#newMemoryBox h2,
+#cards h2,
+#cards h3 {
     margin: 0%;
 }
 
@@ -242,7 +259,7 @@ h1 {
     display: none;
     position: fixed;
     z-index: 99;
-    background-color: #00000069;
+    background-color: #000000;
     width: 100%;
     height: 100%;
 }
@@ -425,12 +442,12 @@ input:checked+.slider:before {
     align-items: center;
     height: 100vh;
     cursor: progress;
-    background-color: wheat;
+    background-color: #ccc;
 }
 
 .app-name {
     position: fixed;
-    top: 20%;
+    top: 10%;
     font-size: 5vh;
 }
 
@@ -440,28 +457,63 @@ input:checked+.slider:before {
 
 .loader-text {
     position: fixed;
-    top: 80%;
+    top: 85%;
+}
+
+.loader-animation {
+    width: fit-content;
+    font-weight: bold;
+    font-family: monospace;
     font-size: 5vh;
+    clip-path: inset(0 3ch 0 0);
+    animation: l4 3.5s steps(4) infinite;
+}
+
+.loader-animation:before {
+    content: "Loading..."
+}
+
+@keyframes l4 {
+    to {
+        clip-path: inset(0 -1ch 0 0)
+    }
+}
+
+@keyframes rotation {
+    to {
+        transform: rotate(1turn);
+    }
 }
 
 .loader {
-    border: 8px solid #00e713;
-    border-radius: 50%;
-    border-top: 8px solid #ff0000;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+    width: 25%;
+    aspect-ratio: 1;
+    background: linear-gradient(#dc1818 0 0) bottom/100% 0% no-repeat #ccc;
+    -webkit-mask:
+        radial-gradient(circle at 60% 65%, #000 62%, #0000 65%) top left,
+        radial-gradient(circle at 40% 65%, #000 62%, #0000 65%) top right,
+        linear-gradient(to bottom left, #000 42%, #0000 43%) bottom left,
+        linear-gradient(to bottom right, #000 42%, #0000 43%) bottom right;
+    mask:
+        radial-gradient(circle at 60% 65%, #000 62%, #0000 65%) top left,
+        radial-gradient(circle at 40% 65%, #000 62%, #0000 65%) top right,
+        linear-gradient(to bottom left, #000 42%, #0000 43%) bottom left,
+        linear-gradient(to bottom right, #000 42%, #0000 43%) bottom right;
+    -webkit-mask-size: 50% 50%;
+    mask-size: 50% 50%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    animation: l19 3.5s infinite linear;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+@keyframes l19 {
 
+    90%,
     100% {
-        transform: rotate(360deg);
+        background-size: 100% 100%
     }
 }
+
 
 .pulsate-fwd {
     -webkit-animation: pulsate-fwd 1.5s ease-in-out infinite both;

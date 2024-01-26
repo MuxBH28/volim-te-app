@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Congratulations</title>
+    <style>
+        body {
+            font-family: 'Pacifico', cursive;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            z-index: -1;
+        }
+
+        .container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5%;
+            max-width: 70%;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Add position relative to establish stacking context */
+            z-index: 1;
+            /* Set z-index higher than .bg and .bgimg to bring it to the front */
+        }
+
+        h3 {
+            color: #e44d26;
+        }
+
+        .dear {
+            text-align: left;
+        }
+
+        .dear2 {
+            text-align: right;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg">
+        <div class="container">
+            <h3>🎉 A Birthday Ode to My Beloved Love 🎂 </h3>
+            <img src="../images/birthdaycard.png" width="20%" height="auto">
+            <h4 class="dear">Dear <span id="soulmate">N/A</span></h4>
+            <div class="text">
+                <p>On this special day, I find myself overflowing with gratitude for the incredible person you are and
+                    the
+                    profound connection we share. <b>Happy Birthday</b> to the one who completes my heart and fills my
+                    days
+                    with
+                    immeasurable joy.</p>
+                <p>With each passing year, our journey together becomes more beautiful. Your presence in my life is a
+                    source
+                    of
+                    endless inspiration, and I am endlessly thankful for the love, laughter, and warmth you bring into
+                    our
+                    shared existence.</p>
+                <p>May this birthday be a celebration of all the wonderful moments we've created together and a
+                    precursor to
+                    the
+                    countless memories that await us. As you blow out the candles, know that my greatest wish is for
+                    your
+                    happiness, fulfillment, and the realization of all your dreams.</p>
+                <p>You are not just my partner; you are my confidant, my rock, and the beat to my heart. Here's to
+                    another
+                    year
+                    of growth, adventure, and deepening our bond. May our love continue to flourish and illuminate our
+                    lives.
+                </p>
+                <p><b>Happy Birthday</b>, my love. Today and always, you are cherished beyond measure.</p>
+            </div>
+            <h4 class="dear2">With all my love,
+                <br><span id="username">N/A</span>
+            </h4>
+        </div>
+        <small style="opacity: 10%;">Made with <a href="https://sehic.rf.gd/volimte" target="_blank">Volim Te
+            App</a></small>    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Listen for parameters from the main process
+        ipcRenderer.on('set-parameters', (event, { username, soulmate }) => {
+            document.getElementById('soulmate').innerText = soulmate;
+            document.getElementById('username').innerText = username;
+        });
+    </script>
+</body>
+
+</html>

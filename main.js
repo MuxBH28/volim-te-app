@@ -3,11 +3,15 @@ const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
 const Datastore = require('nedb');
+const prompt = require('electron-prompt');
 
+let windowWidth = 600;
+let windowHeight = 300;
 let mainWindow;
 let loadingWindow;
 let db;
-
+let settingsDB;
+let userDB;
 const gotSingleLock = app.requestSingleInstanceLock();
 
 if (!gotSingleLock) {
@@ -20,8 +24,27 @@ if (!gotSingleLock) {
       });
     });
 
-    db = new Datastore({ filename: 'nedb.db', autoload: true });
-    createLoadingWindow();
+    db = new Datastore({ filename: './src/databases/nedb.db', autoload: true });
+    settingsDB = new Datastore({ filename: './src/databases/settings.db', autoload: true });
+    userDB = new Datastore({ filename: './src/databases/user.db', autoload: true });
+
+    settingsDB.findOne({}, (err, doc) => {
+      if (err) {
+        console.error('Error fetching configured window size from database:', err);
+        return;
+      }
+
+      if (doc && doc.width && doc.height) {
+        windowWidth = doc.width;
+        windowHeight = doc.height;
+        console.log('Visina:  -> ' + windowHeight);
+        console.log('Sirina:  -> ' + windowWidth);
+        createLoadingWindow();
+      } else {
+        createLoadingWindow();
+      }
+    });
+
     app.on('activate', () => {
       if (mainWindow === null) {
         createWindow();
@@ -55,10 +78,10 @@ function createLoadingWindow() {
   const { workArea } = targetDisplay;
 
   loadingWindow = new BrowserWindow({
-    x: workArea.x + workArea.width - 600,
+    x: workArea.x + workArea.width - windowWidth,
     y: workArea.y,
-    width: 600,
-    height: 300,
+    width: windowWidth,
+    height: windowHeight,
     frame: false,
     skipTaskbar: false,
     resizable: false,
@@ -85,8 +108,6 @@ function createWindow() {
   const displays = screen.getAllDisplays();
   const targetDisplay = displays.find(display => display.bounds.x === 0 && display.bounds.y === 0) || displays[0];
   const { workArea } = targetDisplay;
-  const windowWidth = 600;
-  const windowHeight = 300;
 
   const x = workArea.width - windowWidth;
   const y = workArea.y;
@@ -105,7 +126,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       sandbox: false,
-      devTools: false,
+      devTools: true,
       webSecurity: true,
       contentSecurityPolicy: {
         directives: {
@@ -251,9 +272,284 @@ ipcMain.on('delete-memory', (event, memoryId) => {
     });
   }
 });
-ipcMain.on('clear-data-request', () => {
+ipcMain.on('clear-database', () => {
   db.remove({}, { multi: true });
+  settingsDB.remove({}, { multi: true });
+  userDB.remove({}, { multi: true });
 });
+ipcMain.on('configure-window-size', async (event) => {
+  try {
+    const result = await prompt({
+      title: 'Enter the width and height for the app (comma-separated)',
+      icon: './src/images/icon.ico',
+      label: 'Changing width and height will lead to unexcpected layout issues if done wrong',
+      value: windowWidth + ',' + windowHeight,
+      inputAttrs: {
+        type: 'text',
+      },
+      type: 'input',
+      width: 650,
+      height: 200,
+      alwaysOnTop: true,
+    });
+
+    console.log('Prompt result:', result);
+
+    if (result === null) {
+      console.error('Invalid width or height input.');
+      return;
+    }
+
+    const [width, height] = result.split(',').map(val => parseInt(val.trim(), 10) || 600);
+
+    if (mainWindow) {
+      mainWindow.setSize(width, height);
+    }
+
+    if (loadingWindow) {
+      loadingWindow.setSize(width, height);
+    }
+
+    const configuredWindowSize = { width, height };
+
+    settingsDB.update({}, configuredWindowSize, { upsert: true }, (err, numReplaced) => {
+      if (err) {
+        console.error('Error updating configured window size:', err);
+        return;
+      }
+
+      console.log('Configured window size updated in the database:', configuredWindowSize);
+    });
+
+    console.log(`Configuring app with width: ${width}px, height: ${height}px`);
+  } catch (error) {
+    console.error('Error configuring window size:', error);
+  }
+});
+//CARDS
+ipcMain.on('check-username-exists', (event) => {
+  userDB.findOne({}, (err, doc) => {
+    if (err) {
+      console.error('Error checking username existence:', err);
+      return;
+    }
+
+    event.reply('username-exists-response', doc ? doc.username : null);
+  });
+});
+ipcMain.on('check-soulmate-exists', (event) => {
+  userDB.findOne({}, (err, doc) => {
+    if (err) {
+      console.error('Error checking soulmate existence:', err);
+      return;
+    }
+
+    event.reply('soulmate-exists-response', doc ? doc.soulmate : null);
+  });
+});
+
+ipcMain.on('save-username', (event, username) => {
+  userDB.update({}, { $set: { username } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating username:', err);
+      return;
+    }
+
+    console.log('Username saved in the database:', username);
+    mainWindow.webContents.send('username-saved', username);
+  });
+});
+ipcMain.on('save-soulmate', (event, soulmate) => {
+  userDB.update({}, { $set: { soulmate } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating soulmate:', err);
+      return;
+    }
+
+    console.log('Soulmate saved in the database:', soulmate);
+    mainWindow.webContents.send('soulmate-saved', soulmate);
+  });
+});
+
+ipcMain.on('change-username', async (event) => {
+  const result = await prompt({
+    title: 'Volim Te App',
+    icon: './src/images/icon.ico',
+    label: 'Please enter your new username:',
+    value: 'Your Name',
+    inputAttrs: {
+      type: 'text',
+    },
+    type: 'input',
+    width: 470,
+    height: 200,
+    alwaysOnTop: true,
+  });
+  if (result === null) {
+    console.error('Error updating username:', err);
+    return;
+  }
+  else {
+    const newUsername = result;
+    userDB.update({}, { $set: { username: newUsername } }, { upsert: true }, (err, numReplaced) => {
+      if (err) {
+        console.error('Error updating username:', err);
+        return;
+      }
+
+      console.log('Username saved in the database:', newUsername);
+      mainWindow.webContents.send('username-saved', newUsername);
+    });
+  }
+});
+
+ipcMain.on('change-soulmate', async (event) => {
+  const result = await prompt({
+    title: 'Volim Te App',
+    icon: './src/images/icon.ico',
+    label: 'Please enter name of a soulmate:',
+    value: 'Your Love',
+    inputAttrs: {
+      type: 'text',
+    },
+    type: 'input',
+    width: 470,
+    height: 200,
+    alwaysOnTop: true,
+  });
+  if (result === null) {
+    console.error('Error updating soulmate:', err);
+    return;
+  }
+  else {
+    const newSoulmate = result;
+    userDB.update({}, { $set: { soulmate: newSoulmate } }, { upsert: true }, (err, numReplaced) => {
+      if (err) {
+        console.error('Error updating soulmate:', err);
+        return;
+      }
+
+      console.log('Soulmate saved in the database:', newSoulmate);
+      mainWindow.webContents.send('soulmate-saved', newSoulmate);
+    });
+  }
+});
+async function generatePdf(type, lang, username, soulmate) {
+  console.log('Opening PDF window...');
+  console.log('Language: ', lang);
+  console.log('Type: ', type);
+  const pdfWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  if (!(lang === null)) {
+    if (type === 'cardBirthday') {
+      if (lang === 'ba') {
+        pdfWindow.loadFile('./src/cards/birthday-ba.html');
+      }
+      else if (lang === 'eng') {
+        pdfWindow.loadFile('./src/cards/birthday-eng.html');
+      }
+    }
+    else if (type === 'cardValentine') {
+      if (lang === 'ba') {
+        pdfWindow.loadFile('./src/cards/valentine-ba.html');
+      }
+      else if (lang === 'eng') {
+        pdfWindow.loadFile('./src/cards/valentine-eng.html');
+      }
+    }
+    else if (type === 'cardAnniversary') {
+      if (lang === 'ba') {
+        pdfWindow.loadFile('./src/cards/anniversary-ba.html');
+      }
+      else if (lang === 'eng') {
+        pdfWindow.loadFile('./src/cards/anniversary-eng.html');
+      }
+    }
+    else if (type === 'cardMarriageCertificate') {
+      if (lang === 'ba') {
+        pdfWindow.loadFile('./src/cards/marriage-cert-ba.html');
+      }
+      else if (lang === 'eng') {
+        pdfWindow.loadFile('./src/cards/marriage-cert-eng.html');
+      }
+    }
+    else if (type === 'cardApology') {
+      if (lang === 'ba') {
+        pdfWindow.loadFile('./src/cards/apology-ba.html');
+      }
+      else if (lang === 'eng') {
+        pdfWindow.loadFile('./src/cards/apology-eng.html');
+      }
+    }
+  }
+  else {
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['OK'],
+      defaultId: 0,
+      title: 'Volim Te App',
+      message: 'Please select language for your card.',
+    });
+    pdfWindow.close();
+    return;
+  }
+  await new Promise(resolve => pdfWindow.webContents.on('did-finish-load', resolve));
+
+  console.log('PDF window loaded successfully.');
+  pdfWindow.webContents.executeJavaScript(`
+    var username = decodeURIComponent('${encodeURIComponent(username)}');
+    var soulmate = decodeURIComponent('${encodeURIComponent(soulmate)}');
+    document.getElementById('soulmate').innerText = soulmate;
+    document.getElementById('username').innerText = username;
+  `);
+  pdfWindow.webContents.send('set-parameters', { username, soulmate });
+
+  console.log('Parameters sent to renderer process.');
+  console.log('Parameters injected into HTML.');
+
+  // Generate PDF
+  const pdfOptions = {
+    landscape: false,
+    marginsType: 1,
+    printBackground: true,
+    printSelectionOnly: false,
+    pageSize: 'A4',
+    scaleFactor: 1,
+  };
+
+  console.log('Generating PDF...');
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  const pdfBuffer = await pdfWindow.webContents.printToPDF(pdfOptions);
+
+  console.log('PDF generated successfully.');
+
+  const pdfFilePath = path.join(app.getPath('userData'), type + '-volim-te-app.pdf');
+  fs.writeFileSync(pdfFilePath, pdfBuffer);
+
+  console.log('PDF saved to:', pdfFilePath);
+
+  pdfWindow.close();
+
+  require('electron').shell.openPath(pdfFilePath);
+
+  console.log('PDF window closed.');
+}
+
+
+ipcMain.on('generate-pdf', (event, args) => {
+  console.log('Received generate-pdf message:', args);
+
+  const { type, lang, username, soulmate } = args;
+  generatePdf(type, lang, username, soulmate);
+});
+
+
 
 ipcMain.on('app-quit', (event) => {
   const confirmation = dialog.showMessageBoxSync({
@@ -272,8 +568,9 @@ ipcMain.on('app-quit', (event) => {
 ipcMain.on('ask-reset', async (event) => {
   const confirmation = await dialog.showMessageBox({
     type: 'question',
-    buttons: ['Yes', 'No'],
+    buttons: ['Reset', 'Cancel'],
     defaultId: 1,
+    icon: './src/images/icon-uninstaller.ico',
     title: 'Confirmation',
     message: 'Are you sure you want to reset settings?',
   });
@@ -283,4 +580,6 @@ ipcMain.on('ask-reset', async (event) => {
 app.on('before-quit', () => {
   globalShortcut.unregisterAll();
   db.persistence.compactDatafile();
+  settingsDB.persistence.compactDatafile();
+  userDB.persistence.compactDatafile();
 });

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Card</title>
+    <style>
+        body {
+            font-family: 'Pacifico', cursive;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            z-index: -1;
+        }
+
+        .container {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5%;
+            max-width: 70%;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Add position relative to establish stacking context */
+            z-index: 1;
+            /* Set z-index higher than .bg and .bgimg to bring it to the front */
+        }
+
+        h3 {
+            color: #e44d26;
+        }
+
+        .dear {
+            text-align: left;
+        }
+
+        .dear2 {
+            text-align: right;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg">
+        <div class="container">
+            <h3>💘 Valentine's Day</h3>
+            <img src="../images/valentinescard.jpg" width="30%" height="auto">
+            <h4 class="dear">Dear <span id="soulmate">N/A</span></h4>
+            <div class="text">
+                <p>As the world turns shades of pink and red, and love dances in the air, I find myself lost in the
+                    beauty of our connection. This Valentine's Day, I want to express the depth of my feelings for you.
+                </p>
+                <p>Your love is the melody that plays in my heart, creating a symphony of joy and warmth. Each moment
+                    with you is a cherished note, and our journey together is a beautiful composition.</p>
+                <p>In your embrace, I've found my safe haven, and in your eyes, I see a reflection of a love so pure and
+                    true. Your laughter is the sweetest melody, and your presence is the greatest gift.</p>
+                <p>On this day of love, I want to celebrate you—the incredible person you are and the love we share.
+                    Thank you for being my confidant, my partner, and my greatest source of happiness.
+                </p>
+                <p>Happy Valentine's Day, my love. Here's to another year of laughter, adventures, and a love that grows
+                    stronger with each passing day.</p>
+            </div>
+            <h4 class="dear2">Forever Yours,
+                <br><span id="username">N/A</span>
+            </h4>
+        </div>
+        <small style="opacity: 10%;">Made with <a href="https://sehic.rf.gd/volimte" target="_blank">Volim Te
+                App</a></small>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Listen for parameters from the main process
+        ipcRenderer.on('set-parameters', (event, { username, soulmate }) => {
+            document.getElementById('soulmate').innerText = soulmate;
+            document.getElementById('username').innerText = username;
+        });
+    </script>
+</body>
+
+</html>

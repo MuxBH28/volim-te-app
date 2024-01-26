@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+
+    <style type='text/css'>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Georgia, serif;
+            font-size: 24px;
+            text-align: center;
+            margin: 0;
+        }
+
+        .container {
+            border: 20px solid rgb(95, 95, 95);
+            width: 794px;
+            height: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            background-color: white;
+        }
+
+        .logo {
+            color: rgb(95, 95, 95);
+            font-size: 24px;
+        }
+
+        .marquee {
+            color: rgb(95, 95, 95);
+            font-size: 45px;
+            margin: 20px;
+        }
+
+        .assignment {
+            margin: 20px;
+        }
+
+        .persons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+        }
+
+        .person {
+            font-family: 'Pacifico', cursive;
+            border-bottom: 2px solid black;
+            font-size: 1.8rem;
+            font-style: italic;
+            margin: 0 75px;
+            padding: 5px;
+        }
+
+        .and {
+            font-size: 6rem;
+            font-style: italic;
+            margin: 10px auto;
+            padding: 5px;
+        }
+
+        .reason {
+            margin: 20px;
+            font-size: 14px;
+        }
+
+        .seal img {
+            width: 100px;
+        }
+
+        .note {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            Volim Te App izdaje
+        </div>
+
+        <div class="marquee">
+            Izvod iz matične knjige vjenčanih
+        </div>
+
+        <div class="assignment">
+            Ova potvrda je dokaz ljubavi između:
+        </div>
+        <div class="persons">
+            <div class="person" id="soulmate">
+                N/A
+            </div>
+
+            <div class="and">
+                &
+            </div>
+
+            <div class="person" id="username">
+                N/A
+            </div>
+        </div>
+        <div class="reason">
+            Od današnjeg datuma (<span id="formattedDate"></span>), ovaj vjenčani list dokazuje da osobe iznad
+            su u bračnoj zajednici.
+        </div>
+        <div class="seal">
+            <img src="../images/marriage-stamp.png" alt="Marriage Seal">
+        </div>
+        <div class="note">
+            <small style="opacity: 10%;">Made with <a href="https://sehic.rf.gd/volimte" target="_blank">Volim Te
+                    App</a></small>
+        </div>
+    </div>
+    <script>
+        document.getElementById('formattedDate').textContent = new Date().toLocaleDateString();
+
+        const { ipcRenderer } = require('electron');
+
+        ipcRenderer.on('set-parameters', (event, { username, soulmate }) => {
+            document.getElementById('soulmate').innerText = soulmate;
+            document.getElementById('username').innerText = username;
+        });
+    </script>
+</body>
+
+</html>
