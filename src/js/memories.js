@@ -22,15 +22,20 @@ document.addEventListener('DOMContentLoaded', function () {
     function createMemoryElement(memory) {
         const memoryElement = document.createElement('div');
         memoryElement.classList.add('memory');
-        memoryElement.id = `memory-${memory._id}`; // Use _id as the unique identifier
+        memoryElement.id = `memory-${memory._id}`;
 
         const titleElement = document.createElement('h3');
         titleElement.textContent = memory.title;
 
         const deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-button');
-        deleteButton.textContent = 'Delete';
+        deleteButton.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
         deleteButton.addEventListener('click', () => deleteMemory(memory._id));
+
+        const copyButton = document.createElement('button');
+        copyButton.classList.add('copy-button');
+        copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        copyButton.addEventListener('click', () => copyMemory(memory._id));
 
         const contentElement = document.createElement('p');
         contentElement.textContent = memory.content;
@@ -41,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         memoryElement.appendChild(titleElement);
         memoryElement.appendChild(deleteButton);
+        memoryElement.appendChild(copyButton);
         memoryElement.appendChild(contentElement);
         memoryElement.appendChild(dateElement);
 
@@ -76,6 +82,33 @@ document.addEventListener('DOMContentLoaded', function () {
         ipcRenderer.send('delete-memory', memoryId);
         fetchMemories();
     }
+
+    function copyMemory(memoryId) {
+        const copyButton = document.getElementById(`memory-${memoryId}`).getElementsByClassName("copy-button")[0];
+
+        const memoryElement = document.getElementById(`memory-${memoryId}`);
+
+        const title = memoryElement.querySelector('h3').textContent;
+        const content = memoryElement.querySelector('p').textContent;
+        const date = memoryElement.querySelector('.memory-date').textContent;
+
+        const copiedText = `Volim Te App Memory\nTitle: ${title}\nMemory: \n${content}\nDate: ${date}`;
+
+        const textarea = document.createElement('textarea');
+        textarea.value = copiedText;
+        document.body.appendChild(textarea);
+
+        textarea.select();
+        document.execCommand('copy');
+
+        document.body.removeChild(textarea);
+
+        copyButton.innerHTML = '<i class="fa-solid fa-copy"></i>';
+        setTimeout(() => {
+            copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        }, 1000);
+    }
+
 
     ipcRenderer.on('memory-deleted', (event, memoryId) => {
         const memoriesContainer = document.getElementById('memoriesContainer');

@@ -1,7 +1,6 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain, shell, protocol, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { autoUpdater } = require('electron-updater');
 const Datastore = require('nedb');
 const prompt = require('electron-prompt');
 
@@ -18,11 +17,6 @@ if (!gotSingleLock) {
   app.quit();
 } else {
   app.whenReady().then(() => {
-    ipcMain.on('update-auto-start', (event, shouldOpenAtLogin) => {
-      app.setLoginItemSettings({
-        openAtLogin: shouldOpenAtLogin,
-      });
-    });
 
     db = new Datastore({ filename: './src/databases/nedb.db', autoload: true });
     settingsDB = new Datastore({ filename: './src/databases/settings.db', autoload: true });
@@ -91,6 +85,12 @@ function createLoadingWindow() {
     },
   });
 
+  settingsDB.findOne({}, (err, doc) => {
+    if (!err && doc && doc.x && doc.y) {
+      loadingWindow.setPosition(doc.x, doc.y);
+    }
+  });
+
   loadingWindow.loadFile('src/loading.html');
 
   setTimeout(() => {
@@ -109,46 +109,93 @@ function createWindow() {
   const targetDisplay = displays.find(display => display.bounds.x === 0 && display.bounds.y === 0) || displays[0];
   const { workArea } = targetDisplay;
 
-  const x = workArea.width - windowWidth;
-  const y = workArea.y;
+  // Fetch the configured window location
+  settingsDB.findOne({}, (err, doc) => {
+    if (!err && doc && doc.x && doc.y) {
+      const { x, y } = doc;
 
-  mainWindow = new BrowserWindow({
-    width: windowWidth,
-    height: windowHeight,
-    autoHideMenuBar: true,
-    frame: false,
-    skipTaskbar: true,
-    resizable: false,
-    hasShadow: true,
-    x,
-    y,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      sandbox: false,
-      devTools: true,
-      webSecurity: true,
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["self"],
-          scriptSrc: ["self", "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"],
-          styleSrc: ["self"],
-          imgSrc: ["self"],
-          fontSrc: ["self"],
-          objectSrc: ["self"],
+      mainWindow = new BrowserWindow({
+        width: windowWidth,
+        height: windowHeight,
+        autoHideMenuBar: true,
+        frame: false,
+        skipTaskbar: true,
+        resizable: false,
+        hasShadow: true,
+        x,
+        y,
+        webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false,
+          sandbox: false,
+          devTools: false,
+          webSecurity: true,
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["self"],
+              scriptSrc: ["self", "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"],
+              styleSrc: ["self"],
+              imgSrc: ["self"],
+              fontSrc: ["self"],
+              objectSrc: ["self"],
+            },
+          },
         },
-      },
-    },
-  });
+      });
 
-  mainWindow.loadFile('src/index.html');
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+      mainWindow.loadFile('src/index.html');
+      mainWindow.on('closed', () => {
+        mainWindow = null;
+      });
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
+      mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
+      });
+    } else {
+      // Use default location if configuration is not available
+      const x = workArea.width - windowWidth;
+      const y = workArea.y;
+
+      mainWindow = new BrowserWindow({
+        width: windowWidth,
+        height: windowHeight,
+        autoHideMenuBar: true,
+        frame: false,
+        skipTaskbar: true,
+        resizable: false,
+        hasShadow: true,
+        x,
+        y,
+        webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false,
+          sandbox: false,
+          devTools: false,
+          webSecurity: true,
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["self"],
+              scriptSrc: ["self", "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"],
+              styleSrc: ["self"],
+              imgSrc: ["self"],
+              fontSrc: ["self"],
+              objectSrc: ["self"],
+            },
+          },
+        },
+      });
+
+      mainWindow.loadFile('src/index.html');
+      mainWindow.on('closed', () => {
+        mainWindow = null;
+      });
+
+      mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
+      });
+    }
   });
 }
 
@@ -186,48 +233,6 @@ ipcMain.on('open-file-dialog', async (event) => {
 
     event.reply('file-dialog-closed', destinationPath);
   }
-});
-
-function showUpdateAvailableDialog() {
-  const options = {
-    type: 'question',
-    buttons: ['Yes', 'No'],
-    defaultId: 0,
-    title: 'Update Available',
-    message: 'A new version of the app is available. Would you like to update?',
-  };
-
-  return dialog.showMessageBox(null, options);
-}
-
-autoUpdater.on('update-available', () => {
-  showUpdateAvailableDialog().then(({ response }) => {
-    if (response === 0) {
-      autoUpdater.downloadUpdate();
-    }
-  });
-});
-
-autoUpdater.on('update-downloaded', () => {
-  dialog.showMessageBox({
-    type: 'info',
-    buttons: ['OK'],
-    defaultId: 0,
-    title: 'Update Downloaded',
-    message: 'The update has been downloaded and is ready to be installed. The app will restart.',
-  }).then(() => {
-    autoUpdater.quitAndInstall();
-  });
-});
-
-autoUpdater.on('error', (error) => {
-  dialog.showMessageBox({
-    type: 'error',
-    buttons: ['OK'],
-    defaultId: 0,
-    title: 'Update Error',
-    message: `An error occurred while checking for updates: ${error.message}`,
-  });
 });
 
 ipcMain.on('save-memory', (event, memoryData) => {
@@ -326,6 +331,28 @@ ipcMain.on('configure-window-size', async (event) => {
     console.error('Error configuring window size:', error);
   }
 });
+ipcMain.on('configure-window-location', (event) => {
+  try {
+    if (mainWindow) {
+      const [locationX, locationY] = mainWindow.getPosition();
+
+      const configuredWindowLocation = { x: locationX, y: locationY };
+      settingsDB.update({}, configuredWindowLocation, { upsert: true }, (err, numReplaced) => {
+        if (err) {
+          console.error('Error updating configured window location:', err);
+          return;
+        }
+
+        console.log('Configured window location updated in the database:', configuredWindowLocation);
+      });
+
+      console.log(`Configuring app at X: ${locationX}px, Y: ${locationY}px`);
+    }
+  } catch (error) {
+    console.error('Error configuring window location:', error);
+  }
+});
+
 //CARDS
 ipcMain.on('check-username-exists', (event) => {
   userDB.findOne({}, (err, doc) => {

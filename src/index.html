@@ -15,30 +15,29 @@
 <body>
     <div id="container">
         <div id="draggable-area"><i class="fa-solid fa-up-down-left-right"></i></div>
-        <div>|</div>
         <div>
-            <button onclick="showNotifications()"><i class="fa-solid fa-bell"></i></button>
+            |
         </div>
         <div>
-            <button onclick="showMemories()"><i class="fa-solid fa-note-sticky"></i></button>
-        </div>
-        <div>
-            <button onclick="showCards()"><i class="fa-solid fa-file-pdf"></i></button>
-        </div>
-        <div>
-            <button onclick="showSettings()"><i class="fa-solid fa-gear"></i></button>
-        </div>
-        <div>
-            <button onclick="showInfo()"><i class="fa-solid fa-info-circle"></i></button>
+            <button onclick="showTab('news')"><i class=" fa-solid fa-bullhorn"></i></button>
         </div>
         <div id="options">
-            <button onclick="quitApp()"><i class="fa-solid fa-circle-xmark"></i></button>
+            <button onclick="quitApp()"><i class="fa-solid fa-square-xmark fa-lg"></i></button>
         </div>
     </div>
     <div id="container2">
         Volim te App <span app-version></span>
     </div>
-
+    <div class="menu-button-container">
+        <button onclick="showMenu()"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    <div class="buttons-container">
+        <button onclick="showTab('notifications')"><i class="fa-solid fa-hourglass-half"></i></button>
+        <button onclick="showTab('memories')"><i class="fa-solid fa-note-sticky"></i></button>
+        <button onclick="showTab('cards')"><i class="fa-solid fa-file-pdf"></i></button>
+        <button onclick="showTab('settings')"><i class="fa-solid fa-gear"></i></button>
+        <button onclick="showTab('info')"><i class="fa-solid fa-info-circle"></i></button>
+    </div>
     <div id="settings">
         <h2><i class="fa-solid fa-gear"></i> Settings | <span class="font">Volim te App</span></h2>
         <hr>
@@ -58,16 +57,45 @@
                         </a>
                     </div>
                 </div>
-                <button id="inputFileID" class="inputFile" onclick="uploadImage()">Change background</button><br>
-                <button onclick="configureAppSize()" id="configureWindowSizeButton"> Configure Window size</button><br>
+                <div class="cijelo">
+                    <div class="pola">
+                        <button onclick="configureAppSize()" id="configureWindowSizeButton"> App
+                            size</button>
+                    </div>
+                    <div class="pola">
+                        <button onclick="configureAppLocation()" id="configureWindowLocationButton"> App
+                            location</button>
+                    </div>
+                </div>
+                <button id="inputFileID" class="inputFile" onclick="showTab('backgrounds')">Change
+                    background</button><br>
                 <input type="button" id="reset-button" value="Reset App" onclick="resetSettings()">
             </div>
             <div class="pola">
-                <span>Current image:</span><br>
+                <span>Current background:</span><br>
                 <img id="current-image" alt="Current Image">
             </div>
         </div>
-        <button class="x-button" onclick="hideSettings()">x</button>
+        <button class="x-button" onclick="hideTab('settings')">x</button>
+    </div>
+    <div id="backgrounds">
+        <h2><i class="fa-solid fa-panorama"></i> Background | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div class="background-selector">
+            <img src="images/backgrounds/bg.jpg" id="bg0" onclick="changeBackground(0)">
+            <img src="images/backgrounds/1.jpg" id="bg1" onclick="changeBackground(1)">
+            <img src="images/backgrounds/2.jpg" id="bg2" onclick="changeBackground(2)">
+            <img src="images/backgrounds/3.jpg" id="bg3" onclick="changeBackground(3)">
+            <img src="images/backgrounds/4.jpg" id="bg4" onclick="changeBackground(4)">
+            <img src="images/backgrounds/5.jpg" id="bg5" onclick="changeBackground(5)">
+            <img src="images/backgrounds/6.jpg" id="bg6" onclick="changeBackground(6)">
+            <img src="images/backgrounds/7.jpg" id="bg7" onclick="changeBackground(7)">
+            <img src="images/backgrounds/8.jpg" id="bg8" onclick="changeBackground(8)">
+            <img src="images/backgrounds/9.jpg" id="bg9" onclick="changeBackground(9)">
+            <img src="images/backgrounds/10.jpg" id="bg10" onclick="changeBackground(10)">
+            <img src="images/backgrounds/choose.jpg" id="bgC" onclick="uploadImage()">
+        </div>
+        <button class="x-button" onclick="hideTab('backgrounds')">x</button>
     </div>
     <div id="cards">
         <h2><i class="fa-solid fa-file"></i> Cards | <span class="font">Volim te App</span></h2>
@@ -77,11 +105,11 @@
                 <div class="cijelo">
                     <div class="pola">
                         <h3>Username:</h3>
-                        <p id="username">Muhammed</p>
+                        <p id="username">Username</p>
                     </div>
                     <div class="pola">
                         <h3>Soulmate: </h3>
-                        <p id="soulmate">Emina</p>
+                        <p id="soulmate">Soulmate</p>
                     </div>
                 </div>
                 <button onclick="changeUsername()">Change username</button><br>
@@ -110,7 +138,7 @@
                 <button onclick="generateCard('cardApology')">🥺 Apology</button>
             </div>
         </div>
-        <button class=" x-button" onclick="hideCards()">x</button>
+        <button class=" x-button" onclick="hideTab('cards')">x</button>
     </div>
     <div id="info">
         <h2><i class="fa-solid fa-info-circle"></i> Info | <span class="font">Volim te App</span></h2>
@@ -129,11 +157,13 @@
             data-name="bmc-button" data-slug="sehic" data-color="#FFDD00" data-emoji="" data-font="Cookie"
             data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000"
             data-coffee-color="#ffffff"></script>
-        <button class="x-button" onclick="hideInfo()">x</button>
+        <button class="share-button" id="share-button" onclick="shareApp()"><i
+                class="fa-solid fa-share-nodes"></i></button>
+        <button class="x-button" onclick="hideTab('info')">x</button>
     </div>
 
     <div id="notifications">
-        <h2><i class="fa-solid fa-bell"></i> Reminders | <span class="font">Volim te App</span></h2>
+        <h2><i class="fa-solid fa-hourglass-half"></i> Reminders | <span class="font">Volim te App</span></h2>
         <hr>
         <div class="cijelo">
             <div class="pola">
@@ -203,8 +233,16 @@
                 </div>
             </div>
         </div>
-        <button class="x-button" onclick="hideNotifications()">x</button>
+        <button class="x-button" onclick="hideTab('notifications')">x</button>
     </div>
+
+    <div id="news">
+        <h2><i class="fa-solid fa-bullhorn"></i> News | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div id="news-container"></div>
+        <button class="x-button" onclick="hideTab('news')">x</button>
+    </div>
+
     <div id="memories">
         <h2><i class="fa-solid fa-note-sticky"></i> Memories | <span class="font">Volim te App</span></h2>
         <hr>
@@ -212,9 +250,9 @@
         <h5 id="noMemoriesSpan">Add a new memory by clicking <i class="fa-solid fa-pencil"></i> <i>New</i>
             button
         </h5>
-        <button class="new-memory-button" onclick="showNewMemory()"><i class="fa-solid fa-pencil"></i>
+        <button class="new-memory-button" onclick="showTab('newMemoryBox')"><i class="fa-solid fa-pencil"></i>
             New</button>
-        <button class="x-button" onclick="hideMemories()">x</button>
+        <button class="x-button" onclick="hideTab('memories')">x</button>
     </div>
     <div id="newMemoryBox">
         <h2><i class="fa-solid fa-pencil"></i> New memory:</h2>
@@ -226,7 +264,7 @@
             placeholder="Max charaters 256" required></textarea><br>
         <button class="save-memory" onclick="saveMemory()" id="saveMemoryButton"><i class="fa-solid fa-floppy-disk"></i>
             Save</button>
-        <button class="x-button" onclick="hideNewMemory()">x</button>
+        <button class="x-button" onclick="hideTab('newMemoryBox')">x</button>
     </div>
     <div id="popup-container">
         <div class="popup-info">
@@ -263,7 +301,7 @@
             </div>
             <p>Have a wonderfull day!</p>
         </div>
-        <button class="x-button" onclick="hideReminder()">x</button>
+        <button class="x-button" onclick="hideTab('reminderPopup')">x</button>
     </div>
     <!--Birthday-->
     <div id="BreminderPopup" class="hidden">
@@ -288,7 +326,7 @@
             </div>
             <p>Have a wonderfull day!</p>
         </div>
-        <button class="x-button" onclick="hideReminderB()">x</button>
+        <button class="x-button" onclick="hideTab('BreminderPopup')">x</button>
     </div>
     <div id="main-container">
         <img id="background-image" src="images/background.jpg" alt="Background image">
@@ -306,5 +344,7 @@
 <script src="js/reminders.js"></script>
 <script src="js/memories.js"></script>
 <script src="js/cards.js"></script>
+<script src="js/backgrounds.js"></script>
+<script src="js/news.js"></script>
 
 </html>

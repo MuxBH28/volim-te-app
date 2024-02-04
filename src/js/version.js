@@ -1,6 +1,6 @@
+let versionNumber = "1.3";
 document.addEventListener('DOMContentLoaded', function () {
-    var versionNumber = "v1.2";
-    var versionDate = "26.01.2023."
+    var versionDate = "05.02.2024."
     var versionElements = document.querySelectorAll('[app-version]');
 
     versionElements.forEach(function (element) {

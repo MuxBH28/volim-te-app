@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const acceptButton = document.getElementById('accept-button');
     const leaveButton = document.getElementById('leave-button');
     const dynamicDateElement = document.getElementById('dynamic-date');
-    let backgroundImage = document.getElementById('background-image');
     const hasAccepted = localStorage.getItem('hasAccepted');
     let autoStartSwitch = document.getElementById('autoStartSwitch');
     const autoStartValue = localStorage.getItem('autoStart');
@@ -21,15 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
         targetDate = new Date(targetDate);
     } else {
         targetDate = new Date('2003-12-28T00:00:00Z');
-    }
-    const customBackground = localStorage.getItem('customBackground');
-    if (!customBackground) {
-        backgroundImage.src = 'images/bg.JPG';
-        document.getElementById('current-image').src = 'images/bg.JPG';
-    }
-    else {
-        backgroundImage.src = `file://${customBackground}`;
-        document.getElementById('current-image').src = `file://${customBackground}`;
     }
     if (autoStartValue === null || autoStartValue === 'true') {
         autoStartSwitch.checked = true;
@@ -110,127 +100,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-function showSettings() {
-    var settingsDiv = document.getElementById('settings');
-    settingsDiv.style.display = 'block';
-    settingsDiv.offsetHeight;
-    settingsDiv.style.opacity = 1;
+function showMenu() {
+    toggleButtonsContainer();
 }
 
-function hideSettings() {
-    var settingsDiv = document.getElementById('settings');
-    settingsDiv.style.opacity = 0;
+function toggleButtonsContainer() {
+    const buttonsContainer = document.querySelector('.buttons-container');
+
+    buttonsContainer.classList.toggle('show');
+}
+
+function showTab(tab) {
+    var tabDiv = document.getElementById(tab);
+    tabDiv.style.display = 'block';
+    tabDiv.offsetHeight;
+    tabDiv.style.opacity = 1;
+    if (tab === 'news') {
+        const newsIcon = document.querySelector('.fa-bullhorn');
+        newsIcon.classList.remove('fa-beat');
+        newsIcon.style.color = '';
+        localStorage.setItem('userClickedNewsIcon', 'true');
+    }
+    else {
+        toggleButtonsContainer();
+    }
+}
+function hideTab(tab) {
+    var tabDiv = document.getElementById(tab);
+    tabDiv.style.opacity = 0;
 
     setTimeout(function () {
-        settingsDiv.style.display = 'none';
+        tabDiv.style.display = 'none';
     }, 500);
-}
-
-function showInfo() {
-    var infoDiv = document.getElementById('info');
-    infoDiv.style.display = 'block';
-    infoDiv.offsetHeight;
-    infoDiv.style.opacity = 1;
-}
-
-function hideInfo() {
-    var infoDiv = document.getElementById('info');
-    infoDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        infoDiv.style.display = 'none';
-    }, 500);
-}
-
-function showNotifications() {
-    var notificationsDiv = document.getElementById('notifications');
-    notificationsDiv.style.display = 'block';
-    notificationsDiv.offsetHeight;
-    notificationsDiv.style.opacity = 1;
-}
-
-function hideNotifications() {
-    var notificationsDiv = document.getElementById('notifications');
-    notificationsDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        notificationsDiv.style.display = 'none';
-    }, 500);
-}
-function showMemories() {
-    var memoriesDiv = document.getElementById('memories');
-    memoriesDiv.style.display = 'block';
-    memoriesDiv.offsetHeight;
-    memoriesDiv.style.opacity = 1;
-}
-
-function hideMemories() {
-    var memoriesDiv = document.getElementById('memories');
-    memoriesDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        memoriesDiv.style.display = 'none';
-    }, 500);
-}
-function showNewMemory() {
-    var memoriesDiv = document.getElementById('newMemoryBox');
-    memoriesDiv.style.display = 'block';
-    memoriesDiv.offsetHeight;
-    memoriesDiv.style.opacity = 1;
-}
-
-function hideNewMemory() {
-    var newmemoriesDiv = document.getElementById('newMemoryBox');
-    newmemoriesDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        newmemoriesDiv.style.display = 'none';
-    }, 500);
-}
-function hideReminder() {
-    var reminderpopupDiv = document.getElementById('reminderPopup');
-    reminderpopupDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        reminderpopupDiv.style.display = 'none';
-    }, 500);
-}
-function hideReminderB() {
-    var BreminderpopupDiv = document.getElementById('BreminderPopup');
-    BreminderpopupDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        BreminderpopupDiv.style.display = 'none';
-    }, 500);
-}
-function showCards() {
-    var cardsDiv = document.getElementById('cards');
-    cardsDiv.style.display = 'block';
-    cardsDiv.offsetHeight;
-    cardsDiv.style.opacity = 1;
-}
-
-function hideCards() {
-    var cardsDiv = document.getElementById('cards');
-    cardsDiv.style.opacity = 0;
-
-    setTimeout(function () {
-        cardsDiv.style.display = 'none';
-    }, 500);
-}
-function uploadImage() {
-    ipcRenderer.send('open-file-dialog');
-
-    ipcRenderer.on('file-dialog-closed', (event, filePath) => {
-        console.log('Selected image path:', filePath);
-
-        localStorage.setItem('customBackground', filePath);
-        document.getElementById('inputFileID').innerHTML = 'Background uploaded!';
-        document.getElementById('current-image').src = `file://${filePath}`;
-        setTimeout(function () {
-            location.reload();
-        }, 1000);
-    });
 }
 
 function setAutoStart() {
@@ -246,7 +147,39 @@ function configureAppSize() {
     ipcRenderer.send('configure-window-size');
     autoStartSwitch.innerHTML = "Done!"
     setTimeout(function () {
-        autoStartSwitch.innerHTML = "Configure Window size"
+        autoStartSwitch.innerHTML = "App size"
+    }, 1000);
+}
+function configureAppLocation() {
+    let locationChooseSwitch = document.getElementById('configureWindowLocationButton');
+
+    ipcRenderer.send('configure-window-location');
+    locationChooseSwitch.innerHTML = "Done!"
+    setTimeout(function () {
+        locationChooseSwitch.innerHTML = "App location"
+    }, 1000);
+}
+
+function shareApp() {
+    let shareButton = document.getElementById("share-button");
+
+    const link = "https://sehic.rf.gd/volimte";
+
+    const copiedText = `Volim Te App \nCheck out this delightful application designed to cherish and celebrate the beautiful journey of love. \nMore info here: ${link}`;
+
+    const textarea = document.createElement('textarea');
+    textarea.value = copiedText;
+    document.body.appendChild(textarea);
+
+    textarea.select();
+    document.execCommand('copy');
+
+    document.body.removeChild(textarea);
+
+    shareButton.innerHTML = '<i class="fa-solid fa-check"></i>';
+    alert("Copied to clipboard!");
+    setTimeout(() => {
+        shareButton.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
     }, 1000);
 }
 
@@ -260,7 +193,7 @@ function resetSettings() {
             if (isConfirmed) {
                 resetButton.value = 'Done!';
                 ipcRenderer.send('clear-database');
-                ['pocetakVezeDate', 'hasAccepted', 'customBackground', 'autoStart', 'notifications', 'week-before', 'ann-notifications', 'desktop-notifications', 'birthday-notifications', 'notificationPreferenceDesktop', 'rodjendan', 'language'].forEach(key => localStorage.removeItem(key));
+                ['pocetakVezeDate', 'hasAccepted', 'customBackground', 'autoStart', 'notifications', 'week-before', 'ann-notifications', 'desktop-notifications', 'birthday-notifications', 'notificationPreferenceDesktop', 'rodjendan', 'language', 'newsCounter', 'userClickedNewsIcon'].forEach(key => localStorage.removeItem(key));
                 setTimeout(quitApp, 1000);
             } else {
                 resetButton.value = 'Cancelled!';
@@ -269,7 +202,6 @@ function resetSettings() {
         }
     });
 }
-
 
 function quitApp() {
     ipcRenderer.send('app-quit');

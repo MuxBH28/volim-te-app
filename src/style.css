@@ -14,10 +14,56 @@ body {
     position: fixed;
     top: 0;
     right: 0;
-    background: rgba(104, 104, 104, 0.5);
+    background: #f0f0f0;
     border-bottom-left-radius: 14px;
     z-index: 10;
 }
+
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 45px;
+    left: 0px;
+    z-index: 999;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+}
+
+.menu-button-container {
+    position: fixed;
+    top: 3px;
+    left: 3px;
+    z-index: 10;
+}
+
+.buttons-container.show {
+    transform: translateX(3px);
+}
+
+.buttons-container button,
+.menu-button-container button {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.buttons-container button i,
+.menu-button-container button i {
+    font-size: 18px;
+}
+
+.buttons-container button:hover,
+.menu-button-container button:hover {
+    background-color: #e0e0e0;
+}
+
 
 #container2 {
     display: block;
@@ -70,8 +116,6 @@ button {
     border-radius: 10px;
 }
 
-
-
 h1 {
     font-size: 3em;
     margin: 0;
@@ -121,7 +165,9 @@ h1 {
 #notifications,
 #memories,
 #newMemoryBox,
-#cards {
+#cards,
+#backgrounds,
+#news {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
     z-index: 11;
@@ -138,12 +184,14 @@ h1 {
     transform: translate(-50%, -50%);
 }
 
-#memories {
+#memories,
+#news {
     max-height: 90%;
     overflow-y: auto;
 }
 
-.memory {
+.memory,
+.news-single {
     padding: 5px;
     margin: 6px;
     margin-bottom: 10px;
@@ -154,12 +202,32 @@ h1 {
     transition: 0.5s;
 }
 
+.news-single {
+    background-color: #bbbbbb;
+}
+
+.news-single:hover {
+    background-color: #777777;
+}
+
+.news-single a {
+    float: right;
+    cursor: pointer;
+    padding: 10px;
+    text-decoration: none;
+}
+
+.news-single a:hover {
+    text-decoration: underline;
+}
+
 .memory:hover {
     background-color: #cfcd58;
     user-select: text;
 }
 
-.memory h3 {
+.memory h3,
+.news-single h3 {
     margin: 0%;
 }
 
@@ -171,11 +239,12 @@ h1 {
     opacity: 100%;
 }
 
-.delete-button {
+.delete-button,
+.copy-button {
     float: right;
-    padding: 13px;
+    padding: 10px;
     border-radius: 12px;
-    margin: 5px;
+    margin: 2px;
     user-select: none;
     border: 1px solid #f0ffbc;
     transition: 0.5s;
@@ -187,6 +256,14 @@ h1 {
 
 .delete-button:active {
     background-color: red;
+}
+
+.copy-button:hover {
+    border: 1px solid black;
+}
+
+.copy-button:active {
+    background-color: black;
 }
 
 .new-memory-button {
@@ -202,6 +279,25 @@ h1 {
 
 .new-memory-button:hover {
     background-color: #cfcd58;
+}
+
+.share-button {
+    position: absolute;
+    font-size: larger;
+    top: 1%;
+    right: 10%;
+    padding: 15px;
+    border-radius: 10%;
+    user-select: none;
+    transition: 0.3s;
+}
+
+.share-button:hover {
+    scale: 1.1;
+}
+
+.share-button:active {
+    scale: 0.7;
 }
 
 .help-button {
@@ -226,7 +322,9 @@ h1 {
 #memories h2,
 #newMemoryBox h2,
 #cards h2,
-#cards h3 {
+#cards h3,
+#backgrounds h2,
+#news h2 {
     margin: 0%;
 }
 
@@ -623,4 +721,34 @@ input:checked+.slider:before {
 
 .save-memory:active {
     width: 100%;
+}
+
+.background-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.background-selector img {
+    width: 80%;
+    height: auto;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.3s;
+    filter: grayscale(100%);
+}
+
+.background-selector img:hover {
+    scale: 1.1;
+    filter: grayscale(0%);
+}
+
+.background-selector .background-active {
+    filter: grayscale(0%);
+}
+
+.background-selector .background-active:hover {
+    scale: 1;
+    filter: grayscale(0%);
 }
