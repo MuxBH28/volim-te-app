@@ -6,7 +6,6 @@ body {
     user-select: none;
 }
 
-
 #container {
     display: flex;
     justify-content: flex-end;
@@ -74,6 +73,16 @@ body {
     opacity: 50%;
     z-index: 10;
 }
+
+#clock-container {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
 
 #options,
 #draggable-area {
@@ -167,7 +176,9 @@ h1 {
 #newMemoryBox,
 #cards,
 #backgrounds,
-#news {
+#news,
+#activity,
+#discord {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
     z-index: 11;
@@ -324,7 +335,9 @@ h1 {
 #cards h2,
 #cards h3,
 #backgrounds h2,
-#news h2 {
+#news h2,
+#activity h2,
+#discord h2 {
     margin: 0%;
 }
 

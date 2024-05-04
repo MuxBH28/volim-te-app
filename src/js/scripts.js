@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const hasAccepted = localStorage.getItem('hasAccepted');
     let autoStartSwitch = document.getElementById('autoStartSwitch');
     const autoStartValue = localStorage.getItem('autoStart');
+    let clockSwitch = document.getElementById('clockSwitch');
+    const clockValue = localStorage.getItem('clock');
+    let discordSwitch = document.getElementById('discordSwitch');
+    const discordValue = localStorage.getItem('setDiscord');
 
     if (!hasAccepted) {
         popupContainer.style.display = 'block';
@@ -30,16 +34,33 @@ document.addEventListener('DOMContentLoaded', function () {
         setAutoStart();
 
     }
+    if (clockValue === null || clockValue === 'true') {
+        clockSwitch.checked = true;
+        setClock();
+    } else {
+        clockSwitch.checked = false;
+        setClock();
+    }
+    if (discordValue === null || discordValue === 'true') {
+        discordSwitch.checked = true;
+        connectDiscord();
+    } else {
+        discordSwitch.checked = false;
+    }
 
     acceptButton.addEventListener('click', function () {
         const dateInput = document.getElementById('pocetakveze').value;
         const targetDateInput = new Date(dateInput + 'T00:00:00Z');
 
+        const todaysDate = new Date();
+        const formattedTodaysDate = `${todaysDate.getDate()}.${todaysDate.getMonth() + 1}.${todaysDate.getFullYear()}`;
         localStorage.setItem('pocetakVezeDate', targetDateInput);
         localStorage.setItem('hasAccepted', true);
         popupContainer.style.display = 'none';
         targetDate = targetDateInput;
+        ipcRenderer.send('update-stats', formattedTodaysDate);
     });
+
 
     leaveButton.addEventListener('click', function () {
         quitApp();
@@ -111,7 +132,7 @@ function toggleButtonsContainer() {
 }
 
 function showTab(tab) {
-    var tabDiv = document.getElementById(tab);
+    let tabDiv = document.getElementById(tab);
     tabDiv.style.display = 'block';
     tabDiv.offsetHeight;
     tabDiv.style.opacity = 1;
@@ -121,14 +142,16 @@ function showTab(tab) {
         newsIcon.style.color = '';
         localStorage.setItem('userClickedNewsIcon', 'true');
     }
+    if (tab === 'backgrounds' || tab === 'newMemoryBox' || tab === 'news' || tab === 'settings' || tab === 'info') {
+        document.querySelector('.buttons-container').classList.remove('show');
+    }
     else {
         toggleButtonsContainer();
     }
 }
 function hideTab(tab) {
-    var tabDiv = document.getElementById(tab);
+    let tabDiv = document.getElementById(tab);
     tabDiv.style.opacity = 0;
-
     setTimeout(function () {
         tabDiv.style.display = 'none';
     }, 500);
@@ -141,24 +164,78 @@ function setAutoStart() {
 
     localStorage.setItem('autoStart', autoStartSwitch.checked);
 }
+function setClock() {
+    let clockSwitch = document.getElementById('clockSwitch');
+    localStorage.setItem('clock', clockSwitch.checked);
+}
+function updateClock() {
+    const clockSwitch = document.getElementById('clockSwitch');
+    let clockText = document.getElementById('clock');
+    if (clockSwitch.checked) {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const timeString = `${hours}:${minutes}:${seconds}`;
+        clockText.textContent = timeString;
+    }
+    else {
+        clockText.textContent = '';
+    }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+
+
 function configureAppSize() {
     let autoStartSwitch = document.getElementById('configureWindowSizeButton');
 
     ipcRenderer.send('configure-window-size');
-    autoStartSwitch.innerHTML = "Done!"
+    autoStartSwitch.innerHTML = '<i class="fa-regular fa-circle-check"></i> Done!'
     setTimeout(function () {
-        autoStartSwitch.innerHTML = "App size"
+        autoStartSwitch.innerHTML = '<i class="fa-solid fa-up-right-and-down-left-from-center"></i> App size'
     }, 1000);
 }
 function configureAppLocation() {
     let locationChooseSwitch = document.getElementById('configureWindowLocationButton');
 
     ipcRenderer.send('configure-window-location');
-    locationChooseSwitch.innerHTML = "Done!"
+    locationChooseSwitch.innerHTML = '<i class="fa-regular fa-circle-check"></i> Done!'
     setTimeout(function () {
-        locationChooseSwitch.innerHTML = "App location"
+        locationChooseSwitch.innerHTML = '<i class="fa-solid fa-maximize"></i> App location'
     }, 1000);
 }
+
+function setDiscord() {
+    let discordSwitch = document.getElementById('discordSwitch');
+    localStorage.setItem('setDiscord', discordSwitch.checked);
+    if (!discordSwitch.checked) {
+        stopDiscord();
+    }
+}
+function connectDiscord() {
+    ipcRenderer.send('start-discord');
+
+    let rcntDisc = document.getElementById('rcntDisc');
+    let statusOfDiscord = document.getElementById('statusOfDiscord');
+
+    ipcRenderer.on('discord-status', (event, status) => {
+        if (status === 'online') {
+            statusOfDiscord.innerHTML = "ONLINE"
+        } else if (status === 'error') {
+            statusOfDiscord.innerHTML = "OFFLINE"
+        }
+    });
+}
+function stopDiscord() {
+    ipcRenderer.send('stop-discord');
+
+    let statusOfDiscord = document.getElementById('statusOfDiscord');
+
+    statusOfDiscord.innerHTML = "OFFLINE";
+}
+
 
 function shareApp() {
     let shareButton = document.getElementById("share-button");
@@ -191,13 +268,13 @@ function resetSettings() {
 
         if (resetButton) {
             if (isConfirmed) {
-                resetButton.value = 'Done!';
+                resetButton.innerHTML = '<i class="fa-regular fa-circle-check"></i> Done!';
                 ipcRenderer.send('clear-database');
-                ['pocetakVezeDate', 'hasAccepted', 'customBackground', 'autoStart', 'notifications', 'week-before', 'ann-notifications', 'desktop-notifications', 'birthday-notifications', 'notificationPreferenceDesktop', 'rodjendan', 'language', 'newsCounter', 'userClickedNewsIcon'].forEach(key => localStorage.removeItem(key));
+                ['pocetakVezeDate', 'hasAccepted', 'customBackground', 'autoStart', 'notifications', 'week-before', 'ann-notifications', 'desktop-notifications', 'birthday-notifications', 'notificationPreferenceDesktop', 'rodjendan', 'language', 'newsCounter', 'userClickedNewsIcon', 'clock', 'setDiscord'].forEach(key => localStorage.removeItem(key));
                 setTimeout(quitApp, 1000);
             } else {
-                resetButton.value = 'Cancelled!';
-                setTimeout(() => resetButton.value = 'Reset App', 1000);
+                resetButton.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Cancelled!';
+                setTimeout(() => resetButton.innerHTML = '<i class="fa-solid fa-arrow-rotate-left"></i> Reset App', 1000);
             }
         }
     });

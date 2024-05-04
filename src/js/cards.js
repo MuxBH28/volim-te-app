@@ -74,4 +74,5 @@ async function generateCard(type) {
     const lang = localStorage.getItem('language');
 
     ipcRenderer.send('generate-pdf', { type, lang, username, soulmate });
+    updateStatistics();
 }

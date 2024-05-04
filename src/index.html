@@ -21,6 +21,12 @@
         <div>
             <button onclick="showTab('news')"><i class=" fa-solid fa-bullhorn"></i></button>
         </div>
+        <div>
+            <button onclick="showTab('info')"><i class="fa-solid fa-info-circle"></i></button>
+        </div>
+        <div>
+            <button onclick="showTab('settings')"><i class="fa-solid fa-gear"></i></button>
+        </div>
         <div id="options">
             <button onclick="quitApp()"><i class="fa-solid fa-square-xmark fa-lg"></i></button>
         </div>
@@ -31,12 +37,14 @@
     <div class="menu-button-container">
         <button onclick="showMenu()"><i class="fa-solid fa-bars"></i></button>
     </div>
+    <div id="clock-container">
+        <span id="clock"></span>
+    </div>
     <div class="buttons-container">
-        <button onclick="showTab('notifications')"><i class="fa-solid fa-hourglass-half"></i></button>
-        <button onclick="showTab('memories')"><i class="fa-solid fa-note-sticky"></i></button>
-        <button onclick="showTab('cards')"><i class="fa-solid fa-file-pdf"></i></button>
-        <button onclick="showTab('settings')"><i class="fa-solid fa-gear"></i></button>
-        <button onclick="showTab('info')"><i class="fa-solid fa-info-circle"></i></button>
+        <button onclick="showTab('notifications')"><i class="fa-solid fa-hourglass-half"></i> </button>
+        <button onclick="showTab('memories')"><i class="fa-solid fa-note-sticky"></i> </button>
+        <button onclick="showTab('cards')"><i class="fa-solid fa-file-pdf"></i> </button>
+        <button onclick="showTab('discord')"><i class="fa-brands fa-discord"></i></button>
     </div>
     <div id="settings">
         <h2><i class="fa-solid fa-gear"></i> Settings | <span class="font">Volim te App</span></h2>
@@ -51,31 +59,38 @@
                         </label>
                     </div>
                     <div class="pola">
-                        <a href="https://github.com/MuxBH28/volim-te-app/issues" target="_blank">
-                            <button id="inputFileID" class="inputFile" onclick="uploadImage()">Report a bug <i
-                                    class="fa-solid fa-bug"></i></button>
-                        </a>
+                        <span>Clock</span>
+                        <label class="switch">
+                            <input type="checkbox" id="clockSwitch" onclick="setClock()">
+                            <span class="slider"></span>
+                        </label>
                     </div>
-                </div>
-                <div class="cijelo">
-                    <div class="pola">
-                        <button onclick="configureAppSize()" id="configureWindowSizeButton"> App
-                            size</button>
-                    </div>
-                    <div class="pola">
-                        <button onclick="configureAppLocation()" id="configureWindowLocationButton"> App
-                            location</button>
-                    </div>
-                </div>
-                <button id="inputFileID" class="inputFile" onclick="showTab('backgrounds')">Change
-                    background</button><br>
-                <input type="button" id="reset-button" value="Reset App" onclick="resetSettings()">
+                </div><br>
+                <button onclick="configureAppSize()" id="configureWindowSizeButton"><i
+                        class="fa-solid fa-up-right-and-down-left-from-center"></i> App
+                    size</button>
+                <button onclick="configureAppLocation()" id="configureWindowLocationButton"><i
+                        class="fa-solid fa-maximize"></i> App
+                    location</button>
+                <button id="inputFileID" class="inputFile" onclick="showTab('backgrounds')"><i
+                        class="fa-solid fa-image"></i> Change
+                    background</button>
             </div>
             <div class="pola">
-                <span>Current background:</span><br>
-                <img id="current-image" alt="Current Image">
+                <span>📊 Statistics</span><br>
+                🗓️ Date joined: <span id="dateStat">N/A</span><br>
+                🖥️ App launches: <span id="launchesStat">0</span><br>
+                📄 Generated cards: <span id="cardsStat">0</span><br>
+                📝 Memories made: <span id="memoriesStat">0</span><br>
+                🖼️ Background changes: <span id="backgroundsStat">0</span>
+                <hr>
+                <button id="reset-button" onclick="resetSettings()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                    App</button>
             </div>
         </div>
+        <a href="https://github.com/MuxBH28/volim-te-app/issues" title="Report a bug" target="_blank"><button
+                class="share-button">
+                <i class="fa-solid fa-bug"></i></button></a>
         <button class="x-button" onclick="hideTab('settings')">x</button>
     </div>
     <div id="backgrounds">
@@ -150,7 +165,7 @@
             <li>Author: M.Šehić</li>
             <li>Website: <a href="https://sehic.rf.gd/" target="_blank">www.sehic.rf.gd</a></li>
             <li>Images: <a href="https://pixabay.com/" target="_blank">www.pixabay.com</a></li>
-            <li>Disclaimer: <a href="https://sehic.rf.gd/volimte#disclaimer"
+            <li>Disclaimer: <a href="https://sehic.rf.gd/volimte#disclaimer" title="Click to read disclaimer"
                     target="_blank">www.sehic.rf.gd/volimte#disclaimer</a></li>
         </ul>
         <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
@@ -235,11 +250,50 @@
         </div>
         <button class="x-button" onclick="hideTab('notifications')">x</button>
     </div>
+    <div id="discord">
+        <h2><i class="fa-brands fa-discord"></i> Discord | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div class="cijelo">
+            <div class="pola">
+                <div class="cijelo">
+                    <div class="pola"><span>Enable Discord</span>
+                        <label class="switch">
+                            <input type="checkbox" id="discordSwitch" onclick="setDiscord()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="pola">
+                        <span>Reconnect</span>
+                        <button id="rcntDisc" onclick="connectDiscord()"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="pola">
+                <h2>Status:</h2>
+                <button id="statusOfDiscord">OFFLINE</button>
+            </div>
+        </div>
+        <hr>
+        <small>
+            This Volim Te App feature allows Discord users to showcase the app they are currently using to
+            others on Discord, fostering social interaction and gaming community engagement.</small>
+            <hr>
+        <small>Note: The terms "Discord" and the Discord logo are the property of Discord, Inc. They are used here
+            solely for the purpose of illustrating integration with the Discord platform. We do not claim ownership
+            or affiliation with Discord, Inc., and any references to Discord or its logo are for informational
+            purposes only.</small>
+        <a href="https://github.com/MuxBH28/volim-te-app/issues" title="Report a bug" target="_blank"><button
+                class="share-button">
+                <i class="fa-solid fa-bug"></i></button></a>
+        <button class="x-button" onclick="hideTab('discord')">x</button>
+    </div>
 
     <div id="news">
         <h2><i class="fa-solid fa-bullhorn"></i> News | <span class="font">Volim te App</span></h2>
         <hr>
         <div id="news-container"></div>
+        <a href="https://github.com/MuxBH28/volim-te-app/discussions/1" title="Suggest a feature"
+            target="_blank"><button class="share-button"><i class="fa-solid fa-lightbulb"></i></button></a>
         <button class="x-button" onclick="hideTab('news')">x</button>
     </div>
 
@@ -270,7 +324,8 @@
         <div class="popup-info">
             <h1 class="font">Volim te App</h1>
             <h3>Welcome to <span class="font">Volim te App</span> <span app-version></span></h3>
-            <p>By using this app, you agree to <a href="https://sehic.rf.gd/volimte#disclaimer" target="_blank">Volim te
+            <p>By using this app, you agree to <a href="https://sehic.rf.gd/volimte#disclaimer"
+                    title="Click to read disclaimer" target="_blank">Volim te
                     App
                     Disclaimer</a>
             </p>
@@ -346,5 +401,5 @@
 <script src="js/cards.js"></script>
 <script src="js/backgrounds.js"></script>
 <script src="js/news.js"></script>
-
+<script src="js/stats.js"></script>
 </html>

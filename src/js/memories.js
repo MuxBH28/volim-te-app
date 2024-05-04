@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2000);
 
         fetchMemories();
+        updateStatistics();
     };
 
     function deleteMemory(memoryId) {

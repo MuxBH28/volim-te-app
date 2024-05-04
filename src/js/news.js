@@ -1,7 +1,8 @@
 const axios = require('axios');
 
 document.addEventListener('DOMContentLoaded', async function () {
-    const npointEndpoint = '[REDACTED]';
+
+    const npointEndpoint = 'https://api.npoint.io/1502a6267ab1f37bff77';
 
     try {
         let storedTotalNewsCount = localStorage.getItem('totalNewsCount') || 0;
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     desktopNotificationUpdate.addEventListener('click', () => {
                         window.open(item.Link, '_blank');
                     });
+                    ipcRenderer.send('update-available');
                 }
             });
         }

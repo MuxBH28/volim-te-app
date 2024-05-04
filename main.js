@@ -3,24 +3,35 @@ const path = require('path');
 const fs = require('fs');
 const Datastore = require('nedb');
 const prompt = require('electron-prompt');
+const documentsPathDB = path.join(app.getPath('documents'), 'Volim Te App', 'Databases');
+const { Client } = require('discord-rpc');
 
 let windowWidth = 600;
 let windowHeight = 300;
 let mainWindow;
 let loadingWindow;
+const dbFilePath = path.join(documentsPathDB, 'nedb.db');
+const settingsDBFilePath = path.join(documentsPathDB, 'settings.db');
+const userDBFilePath = path.join(documentsPathDB, 'user.db');
+const statsFilePath = path.join(documentsPathDB, 'stats.db');
+const gotSingleLock = app.requestSingleInstanceLock();
+const clientId = '1231218760590032897';
+
 let db;
 let settingsDB;
 let userDB;
-const gotSingleLock = app.requestSingleInstanceLock();
+let statsDB;
+let rpc;
 
 if (!gotSingleLock) {
   app.quit();
 } else {
   app.whenReady().then(() => {
 
-    db = new Datastore({ filename: './src/databases/nedb.db', autoload: true });
-    settingsDB = new Datastore({ filename: './src/databases/settings.db', autoload: true });
-    userDB = new Datastore({ filename: './src/databases/user.db', autoload: true });
+    db = new Datastore({ filename: dbFilePath, autoload: true });
+    settingsDB = new Datastore({ filename: settingsDBFilePath, autoload: true });
+    userDB = new Datastore({ filename: userDBFilePath, autoload: true });
+    statsDB = new Datastore({ filename: statsFilePath, autoload: true });
 
     settingsDB.findOne({}, (err, doc) => {
       if (err) {
@@ -129,6 +140,7 @@ function createWindow() {
           contextIsolation: false,
           sandbox: false,
           devTools: false,
+          hardwareAcceleration: false,
           webSecurity: true,
           contentSecurityPolicy: {
             directives: {
@@ -172,6 +184,7 @@ function createWindow() {
           contextIsolation: false,
           sandbox: false,
           devTools: false,
+          hardwareAcceleration: false,
           webSecurity: true,
           contentSecurityPolicy: {
             directives: {
@@ -208,40 +221,20 @@ ipcMain.on('focusWindow', () => {
   }
 });
 
-ipcMain.on('open-file-dialog', async (event) => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile'],
-    filters: [
-      { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
-    ],
-  });
-
-  if (!result.canceled && result.filePaths.length > 0) {
-    const selectedImagePath = result.filePaths[0];
-
-    const destinationFolder = path.join(app.getPath('userData'), 'images');
-
-    if (!fs.existsSync(destinationFolder)) {
-      fs.mkdirSync(destinationFolder);
-    }
-
-    const fileName = path.basename(selectedImagePath);
-
-    const destinationPath = path.join(destinationFolder, fileName);
-
-    fs.copyFileSync(selectedImagePath, destinationPath);
-
-    event.reply('file-dialog-closed', destinationPath);
-  }
-});
-
 ipcMain.on('save-memory', (event, memoryData) => {
   db.insert(memoryData, (err, newMemory) => {
     if (err) {
       console.error('Error saving memory:', err);
       return;
     }
+    statsDB.update({}, { $inc: { memoriesMade: 1 } }, { upsert: true }, (err, numReplaced) => {
+      if (err) {
+        console.error('Error updating memories made count:', err);
+        return;
+      }
 
+      console.log('Memories made count updated in the database');
+    });
     event.sender.send('memory-saved', newMemory);
   });
 });
@@ -281,13 +274,17 @@ ipcMain.on('clear-database', () => {
   db.remove({}, { multi: true });
   settingsDB.remove({}, { multi: true });
   userDB.remove({}, { multi: true });
+  statsDB.remove({}, { multi: true });
 });
-ipcMain.on('configure-window-size', async (event) => {
+
+ipcMain.on('configure-window-size', (event) => {
   try {
-    const result = await prompt({
+    const prompt = require('electron-prompt');
+
+    prompt({
       title: 'Enter the width and height for the app (comma-separated)',
       icon: './src/images/icon.ico',
-      label: 'Changing width and height will lead to unexcpected layout issues if done wrong',
+      label: 'Changing width and height will lead to unexpected layout issues if done wrong',
       value: windowWidth + ',' + windowHeight,
       inputAttrs: {
         type: 'text',
@@ -296,41 +293,46 @@ ipcMain.on('configure-window-size', async (event) => {
       width: 650,
       height: 200,
       alwaysOnTop: true,
-    });
+    })
+      .then((result) => {
+        console.log('Prompt result:', result);
 
-    console.log('Prompt result:', result);
+        if (result === null) {
+          console.error('Invalid width or height input.');
+          return;
+        }
 
-    if (result === null) {
-      console.error('Invalid width or height input.');
-      return;
-    }
+        const [width, height] = result.split(',').map(val => parseInt(val.trim(), 10) || 600);
 
-    const [width, height] = result.split(',').map(val => parseInt(val.trim(), 10) || 600);
+        if (mainWindow) {
+          mainWindow.setSize(width, height);
+        }
 
-    if (mainWindow) {
-      mainWindow.setSize(width, height);
-    }
+        if (loadingWindow) {
+          loadingWindow.setSize(width, height);
+        }
 
-    if (loadingWindow) {
-      loadingWindow.setSize(width, height);
-    }
+        const configuredWindowSize = { width, height };
 
-    const configuredWindowSize = { width, height };
+        settingsDB.update({}, configuredWindowSize, { upsert: true }, (err, numReplaced) => {
+          if (err) {
+            console.error('Error updating configured window size:', err);
+            return;
+          }
 
-    settingsDB.update({}, configuredWindowSize, { upsert: true }, (err, numReplaced) => {
-      if (err) {
-        console.error('Error updating configured window size:', err);
-        return;
-      }
+          console.log('Configured window size updated in the database:', configuredWindowSize);
+        });
 
-      console.log('Configured window size updated in the database:', configuredWindowSize);
-    });
-
-    console.log(`Configuring app with width: ${width}px, height: ${height}px`);
+        console.log(`Configuring app with width: ${width}px, height: ${height}px`);
+      })
+      .catch((error) => {
+        console.error('Error configuring window size:', error);
+      });
   } catch (error) {
     console.error('Error configuring window size:', error);
   }
 });
+
 ipcMain.on('configure-window-location', (event) => {
   try {
     if (mainWindow) {
@@ -397,9 +399,8 @@ ipcMain.on('save-soulmate', (event, soulmate) => {
     mainWindow.webContents.send('soulmate-saved', soulmate);
   });
 });
-
-ipcMain.on('change-username', async (event) => {
-  const result = await prompt({
+ipcMain.on('change-username', (event) => {
+  prompt({
     title: 'Volim Te App',
     icon: './src/images/icon.ico',
     label: 'Please enter your new username:',
@@ -411,30 +412,33 @@ ipcMain.on('change-username', async (event) => {
     width: 470,
     height: 200,
     alwaysOnTop: true,
-  });
-  if (result === null) {
-    console.error('Error updating username:', err);
-    return;
-  }
-  else {
-    const newUsername = result;
-    userDB.update({}, { $set: { username: newUsername } }, { upsert: true }, (err, numReplaced) => {
-      if (err) {
-        console.error('Error updating username:', err);
+  })
+    .then((result) => {
+      if (result === null) {
+        console.error('User canceled the operation.');
         return;
       }
 
-      console.log('Username saved in the database:', newUsername);
-      mainWindow.webContents.send('username-saved', newUsername);
-    });
-  }
-});
+      const newUsername = result;
+      userDB.update({}, { $set: { username: newUsername } }, { upsert: true }, (err, numReplaced) => {
+        if (err) {
+          console.error('Error updating username:', err);
+          return;
+        }
 
-ipcMain.on('change-soulmate', async (event) => {
-  const result = await prompt({
+        console.log('Username saved in the database:', newUsername);
+        mainWindow.webContents.send('username-saved', newUsername);
+      });
+    })
+    .catch((error) => {
+      console.error('Error updating username:', error);
+    });
+});
+ipcMain.on('change-soulmate', (event) => {
+  prompt({
     title: 'Volim Te App',
     icon: './src/images/icon.ico',
-    label: 'Please enter name of a soulmate:',
+    label: 'Please enter the name of a soulmate:',
     value: 'Your Love',
     inputAttrs: {
       type: 'text',
@@ -443,25 +447,73 @@ ipcMain.on('change-soulmate', async (event) => {
     width: 470,
     height: 200,
     alwaysOnTop: true,
-  });
-  if (result === null) {
-    console.error('Error updating soulmate:', err);
-    return;
-  }
-  else {
-    const newSoulmate = result;
-    userDB.update({}, { $set: { soulmate: newSoulmate } }, { upsert: true }, (err, numReplaced) => {
-      if (err) {
-        console.error('Error updating soulmate:', err);
+  })
+    .then((result) => {
+      if (result === null) {
+        console.error('User canceled the operation.');
         return;
       }
 
-      console.log('Soulmate saved in the database:', newSoulmate);
-      mainWindow.webContents.send('soulmate-saved', newSoulmate);
+      const newSoulmate = result;
+      userDB.update({}, { $set: { soulmate: newSoulmate } }, { upsert: true }, (err, numReplaced) => {
+        if (err) {
+          console.error('Error updating soulmate:', err);
+          return;
+        }
+
+        console.log('Soulmate saved in the database:', newSoulmate);
+        mainWindow.webContents.send('soulmate-saved', newSoulmate);
+      });
+    })
+    .catch((error) => {
+      console.error('Error updating soulmate:', error);
     });
+});
+
+ipcMain.on('start-discord', (event) => {
+  rpc = new Client({ transport: 'ipc' });
+  rpc.on('ready', () => {
+    console.log('Discord RPC client is ready');
+    event.sender.send('discord-status', 'online');
+
+    const presenceData = {
+      state: 'In a relationship',
+      details: 'Enjoying',
+      largeImageKey: 'untitled-1',
+      largeImageText: 'www.sehic.rf.gd/volimte',
+      startTimestamp: Math.floor(Date.now() / 1000),
+    };
+
+    rpc.setActivity(presenceData)
+      .then(() => console.log('Rich Presence updated'))
+      .catch(error => console.error('Error updating Rich Presence:', error));
+  });
+
+  rpc.on('error', error => {
+    console.error('Discord RPC client error:', error);
+    event.sender.send('discord-status', 'error');
+  });
+
+  rpc.login({ clientId }).catch(error => {
+    console.error('Error logging in to Discord:', error);
+    event.sender.send('discord-status', 'error');
+  });
+});
+
+ipcMain.on('stop-discord', (event) => {
+  if (rpc) {
+    rpc.destroy();
+    console.log('Disconnected from Discord RPC');
+    event.sender.send('discord-status', 'offline');
+  } else {
+    console.warn('Discord RPC client is not initialized');
+    event.sender.send('discord-status', 'offline');
   }
 });
-async function generatePdf(type, lang, username, soulmate) {
+
+
+
+function generatePdf(type, lang, username, soulmate) {
   console.log('Opening PDF window...');
   console.log('Language: ', lang);
   console.log('Type: ', type);
@@ -519,64 +571,177 @@ async function generatePdf(type, lang, username, soulmate) {
       buttons: ['OK'],
       defaultId: 0,
       title: 'Volim Te App',
-      message: 'Please select language for your card.',
+      message: 'Please select a language for your card.',
     });
     pdfWindow.close();
     return;
   }
-  await new Promise(resolve => pdfWindow.webContents.on('did-finish-load', resolve));
 
-  console.log('PDF window loaded successfully.');
-  pdfWindow.webContents.executeJavaScript(`
-    var username = decodeURIComponent('${encodeURIComponent(username)}');
-    var soulmate = decodeURIComponent('${encodeURIComponent(soulmate)}');
-    document.getElementById('soulmate').innerText = soulmate;
-    document.getElementById('username').innerText = username;
-  `);
-  pdfWindow.webContents.send('set-parameters', { username, soulmate });
+  pdfWindow.webContents.on('did-finish-load', () => {
+    console.log('PDF window loaded successfully.');
+    pdfWindow.webContents.executeJavaScript(`
+      var username = decodeURIComponent('${encodeURIComponent(username)}');
+      var soulmate = decodeURIComponent('${encodeURIComponent(soulmate)}');
+      document.getElementById('soulmate').innerText = soulmate;
+      document.getElementById('username').innerText = username;
+    `);
+    pdfWindow.webContents.send('set-parameters', { username, soulmate });
 
-  console.log('Parameters sent to renderer process.');
-  console.log('Parameters injected into HTML.');
+    console.log('Parameters sent to renderer process.');
+    console.log('Parameters injected into HTML.');
 
-  // Generate PDF
-  const pdfOptions = {
-    landscape: false,
-    marginsType: 1,
-    printBackground: true,
-    printSelectionOnly: false,
-    pageSize: 'A4',
-    scaleFactor: 1,
-  };
+    // Generate PDF
+    const pdfOptions = {
+      landscape: false,
+      marginsType: 1,
+      printBackground: true,
+      printSelectionOnly: false,
+      pageSize: 'A4',
+      scaleFactor: 1,
+    };
 
-  console.log('Generating PDF...');
+    console.log('Generating PDF...');
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+    setTimeout(() => {
+      pdfWindow.webContents.printToPDF(pdfOptions, (error, pdfBuffer) => {
+        if (error) {
+          console.error('Error generating PDF:', error);
+          return;
+        }
 
-  const pdfBuffer = await pdfWindow.webContents.printToPDF(pdfOptions);
+        console.log('PDF generated successfully.');
 
-  console.log('PDF generated successfully.');
+        const pdfFolderPath = path.join(app.getPath('documents'), 'Volim Te App', 'Cards');
+        if (!fs.existsSync(pdfFolderPath)) {
+          fs.mkdirSync(pdfFolderPath, { recursive: true });
+        }
 
-  const pdfFilePath = path.join(app.getPath('userData'), type + '-volim-te-app.pdf');
-  fs.writeFileSync(pdfFilePath, pdfBuffer);
+        const pdfFilePath = path.join(pdfFolderPath, type + '-language-' + lang + '-volim-te-app.pdf');
+        fs.writeFile(pdfFilePath, pdfBuffer, (error) => {
+          if (error) {
+            console.error('Error saving PDF:', error);
+            return;
+          }
 
-  console.log('PDF saved to:', pdfFilePath);
+          console.log('PDF saved to:', pdfFilePath);
 
-  pdfWindow.close();
+          pdfWindow.close();
 
-  require('electron').shell.openPath(pdfFilePath);
+          require('electron').shell.openPath(pdfFilePath);
 
-  console.log('PDF window closed.');
+          console.log('PDF window closed.');
+        });
+      });
+    }, 1000);
+  });
 }
-
 
 ipcMain.on('generate-pdf', (event, args) => {
   console.log('Received generate-pdf message:', args);
 
   const { type, lang, username, soulmate } = args;
   generatePdf(type, lang, username, soulmate);
+  statsDB.update({}, { $inc: { generatedCards: 1 } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating generated cards count:', err);
+      return;
+    }
+
+    console.log('Generated cards count updated in the database');
+  });
 });
 
+//stats
+ipcMain.on('update-stats', (event, formattedTodaysDate) => {
+  statsDB.update({}, { $set: { dateJoined: formattedTodaysDate } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating stats:', err);
+      return;
+    }
 
+    console.log('Stats updated in the database with today\'s date:', formattedTodaysDate);
+    event.sender.send('stats-updated', formattedTodaysDate);
+  });
+});
+ipcMain.on('update-launch-count', () => {
+  statsDB.update({}, { $inc: { launchCount: 1 } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating launch count:', err);
+      return;
+    }
+
+    console.log('Launch count updated in the database');
+  });
+});
+
+function updateBackgroundStat() {
+  statsDB.update({}, { $inc: { backgroundsStat: 1 } }, { upsert: true }, (err, numReplaced) => {
+    if (err) {
+      console.error('Error updating backgrounds stat:', err);
+      return;
+    }
+    console.log('Backgrounds stat updated in the database');
+  });
+}
+ipcMain.on('open-file-dialog', (event) => {
+  const destinationFolder = path.join(app.getPath('documents'), 'Volim Te App', 'Images');
+
+  dialog.showOpenDialog({
+    defaultPath: destinationFolder,
+    properties: ['openFile'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+    ],
+  })
+    .then((result) => {
+      if (!result.canceled && result.filePaths.length > 0) {
+        const selectedImagePath = result.filePaths[0];
+
+        if (!fs.existsSync(destinationFolder)) {
+          fs.mkdirSync(destinationFolder, { recursive: true });
+        }
+
+        const fileName = path.basename(selectedImagePath);
+
+        const destinationPath = path.join(destinationFolder, fileName);
+
+        fs.copyFileSync(selectedImagePath, destinationPath);
+
+        event.reply('file-dialog-closed', destinationPath);
+        updateBackgroundStat();
+      }
+    })
+    .catch((error) => {
+      console.error('Error opening file dialog:', error);
+    });
+});
+
+ipcMain.on('update-backgrounds-stat', () => {
+  updateBackgroundStat();
+});
+
+ipcMain.on('request-stats', (event) => {
+  statsDB.findOne({}, (err, stats) => {
+    if (err) {
+      console.error('Error fetching stats:', err);
+      return;
+    }
+    event.sender.send('stats-response', stats || { dateJoined: null, launchCount: 0, generatedCards: 0, memoriesMade: 0, backgroundsStat: 0 });
+  });
+});
+ipcMain.on('update-available', (event) => {
+  const confirmation = dialog.showMessageBoxSync({
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Volim Te App asks:',
+    message: 'New update is available. Update now?',
+  });
+
+  if (confirmation === 0) {
+    shell.openExternal('https://sehic.rf.gd/volimte#download');
+  }
+});
 
 ipcMain.on('app-quit', (event) => {
   const confirmation = dialog.showMessageBoxSync({
@@ -592,16 +757,21 @@ ipcMain.on('app-quit', (event) => {
   }
 });
 
-ipcMain.on('ask-reset', async (event) => {
-  const confirmation = await dialog.showMessageBox({
+ipcMain.on('ask-reset', (event) => {
+  dialog.showMessageBox({
     type: 'question',
     buttons: ['Reset', 'Cancel'],
     defaultId: 1,
     icon: './src/images/icon-uninstaller.ico',
     title: 'Confirmation',
     message: 'Are you sure you want to reset settings?',
-  });
-  event.reply('reset-confirmation', confirmation.response === 0);
+  })
+    .then((confirmation) => {
+      event.reply('reset-confirmation', confirmation.response === 0);
+    })
+    .catch((error) => {
+      console.error('Error showing reset confirmation dialog:', error);
+    });
 });
 
 app.on('before-quit', () => {
@@ -609,4 +779,5 @@ app.on('before-quit', () => {
   db.persistence.compactDatafile();
   settingsDB.persistence.compactDatafile();
   userDB.persistence.compactDatafile();
+  statsDB.persistence.compactDatafile();
 });
