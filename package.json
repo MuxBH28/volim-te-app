@@ -1,6 +1,6 @@
 {
   "name": "volim-te-app",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "VolimTeApp is a delightful application designed to cherish and celebrate the beautiful journey of love.",
   "main": "main.js",
   "scripts": {
@@ -32,7 +32,10 @@
     "Relationship Calculator",
     "Love Anniversary App"
   ],
-  "author": "Muhammed Šehić",
+  "author": {
+    "name": "Muhammed Šehić",
+    "email": "sehicmuhammed7@proton.me"
+  },
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/MuxBH28/volim-te-app/issues"
@@ -43,7 +46,7 @@
     "@babel/core": "^7.23.7",
     "@babel/preset-env": "^7.23.8",
     "@electron/rebuild": "^3.5.0",
-    "electron": "^28.0.0",
+    "electron": "^28.3.3",
     "electron-builder": "^24.9.1",
     "electron-prebuilt": "^1.4.13",
     "electron-rebuild": "^3.2.9"
@@ -71,6 +74,16 @@
       "uninstallerIcon": "images/icon-uninstaller.ico",
       "installerSidebar": "images/sidebar.bmp",
       "uninstallerSidebar": "images/sidebar.bmp"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "snap",
+        "rpm"
+      ],
+      "category": "Utility",
+      "icon": "images/icon.png"
     }
   },
   "dependencies": {

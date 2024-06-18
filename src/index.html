@@ -41,9 +41,10 @@
         <span id="clock"></span>
     </div>
     <div class="buttons-container">
-        <button onclick="showTab('notifications')"><i class="fa-solid fa-hourglass-half"></i> </button>
-        <button onclick="showTab('memories')"><i class="fa-solid fa-note-sticky"></i> </button>
-        <button onclick="showTab('cards')"><i class="fa-solid fa-file-pdf"></i> </button>
+        <button onclick="showTab('notifications')"><i class="fa-solid fa-hourglass-half"></i></button>
+        <button onclick="showTab('memories')"><i class="fa-solid fa-note-sticky"></i></button>
+        <button onclick="showTab('cards')"><i class="fa-solid fa-file-pdf"></i></button>
+        <button onclick="showTab('milestones')"><i class="fa-regular fa-calendar-check"></i></button>
         <button onclick="showTab('discord')"><i class="fa-brands fa-discord"></i></button>
     </div>
     <div id="settings">
@@ -82,6 +83,7 @@
                 🖥️ App launches: <span id="launchesStat">0</span><br>
                 📄 Generated cards: <span id="cardsStat">0</span><br>
                 📝 Memories made: <span id="memoriesStat">0</span><br>
+                📅 Milestones made: <span id="milestonesStat">0</span><br>
                 🖼️ Background changes: <span id="backgroundsStat">0</span>
                 <hr>
                 <button id="reset-button" onclick="resetSettings()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset
@@ -176,7 +178,31 @@
                 class="fa-solid fa-share-nodes"></i></button>
         <button class="x-button" onclick="hideTab('info')">x</button>
     </div>
-
+    <div id="milestones">
+        <h2><i class="fa-regular fa-calendar-check"></i> Milestones | <span class="font">Volim te App</span></h2>
+        <hr>
+        <div id="milestonesContainer">
+            <h5 id="noMilestonesSpan">Add a new milestone by clicking <i class="fa-solid fa-pencil"></i> <i>New</i>
+                button
+            </h5>
+        </div>
+        <button class="new-memory-button" onclick="showTab('newMilestone')"><i class="fa-solid fa-pencil"></i>
+            New</button>
+        <button class="x-button" onclick="hideTab('milestones')">x</button>
+    </div>
+    <div id="newMilestone">
+        <h2><i class="fa-solid fa-pencil"></i> New milestone:</h2>
+        <hr>
+        <label for="inputMilestoneName">Milestone header:</label>
+        <input type="text" id="inputMilestoneName" maxlength="64" placeholder="Max charaters 64" required><br>
+        <label for="inputMilestoneDate">Milestone date:</label>
+        <input type="date" id="inputMilestoneDate" min="1980-05-04" max="2025-12-31" required><br>
+        <br>
+        <button class="save-memory" onclick="saveMilestone()" id="saveMilestoneButton"><i
+                class="fa-solid fa-floppy-disk"></i>
+            Save</button>
+        <button class="x-button" onclick="hideTab('newMilestone')">x</button>
+    </div>
     <div id="notifications">
         <h2><i class="fa-solid fa-hourglass-half"></i> Reminders | <span class="font">Volim te App</span></h2>
         <hr>
@@ -277,7 +303,7 @@
         <small>
             This Volim Te App feature allows Discord users to showcase the app they are currently using to
             others on Discord, fostering social interaction and gaming community engagement.</small>
-            <hr>
+        <hr>
         <small>Note: The terms "Discord" and the Discord logo are the property of Discord, Inc. They are used here
             solely for the purpose of illustrating integration with the Discord platform. We do not claim ownership
             or affiliation with Discord, Inc., and any references to Discord or its logo are for informational
@@ -402,4 +428,6 @@
 <script src="js/backgrounds.js"></script>
 <script src="js/news.js"></script>
 <script src="js/stats.js"></script>
+<script src="js/milestones.js"></script>
+
 </html>

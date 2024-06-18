@@ -18,6 +18,9 @@ function updateStatistics() {
         const memoriesStatElement = document.getElementById('memoriesStat');
         memoriesStatElement.textContent = stats.memoriesMade || '0';
 
+        const milestonesStatElement = document.getElementById('milestonesStat');
+        milestonesStatElement.textContent = stats.milestonesMade || '0';
+
         const backgroundsStatElement = document.getElementById('backgroundsStat');
         backgroundsStatElement.textContent = stats.backgroundsStat || '0';
     });

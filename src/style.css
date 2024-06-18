@@ -174,11 +174,13 @@ h1 {
 #notifications,
 #memories,
 #newMemoryBox,
+#newMilestone,
 #cards,
 #backgrounds,
 #news,
 #activity,
-#discord {
+#discord,
+#milestones {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
     z-index: 11;
@@ -196,7 +198,8 @@ h1 {
 }
 
 #memories,
-#news {
+#news,
+#milestones {
     max-height: 90%;
     overflow-y: auto;
 }
@@ -332,12 +335,13 @@ h1 {
 #notifications h2,
 #memories h2,
 #newMemoryBox h2,
-#cards h2,
+#newMilestone h2 #cards h2,
 #cards h3,
 #backgrounds h2,
 #news h2,
 #activity h2,
-#discord h2 {
+#discord h2,
+#milestones h2 {
     margin: 0%;
 }
 
@@ -692,7 +696,8 @@ input:checked+.slider:before {
     height: auto;
 }
 
-#noMemoriesSpan {
+#noMemoriesSpan,
+#noMilestonesSpan {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -700,7 +705,9 @@ input:checked+.slider:before {
 }
 
 #newMemoryBox input[type=text],
-#newMemoryBox textarea {
+#newMemoryBox textarea,
+#newMilestone input[type=text],
+#newMilestone textarea {
     margin: 6px;
     padding: 6px;
     border-radius: 12px;
@@ -708,7 +715,8 @@ input:checked+.slider:before {
     border: 2px solid black;
 }
 
-#newMemoryBox label {
+#newMemoryBox label,
+#newMilestone label {
     border-bottom: 1px solid black;
 }
 
@@ -764,4 +772,87 @@ input:checked+.slider:before {
 .background-selector .background-active:hover {
     scale: 1;
     filter: grayscale(0%);
+}
+
+.widget-wrap {
+    margin: auto;
+    width: 100%;
+    align-items: center;
+}
+
+#milestonesContainer {
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 10px 10px 50px;
+}
+
+#milestonesContainer,
+#milestonesContainer * {
+    box-sizing: border-box;
+}
+
+#milestonesContainer::before {
+    content: "";
+    width: 5px;
+    background-color: #41de1a;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 15px;
+}
+
+div.milestone {
+    padding: 20px 30px;
+    background-color: #ffebeb;
+    position: relative;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+p.milestone-date {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #00ff15;
+}
+
+p.milestone-title {
+    margin: 10px 0 0 0;
+    font-size: 1em;
+    color: #222;
+}
+
+div.milestone::before {
+    content: "";
+    border: 10px solid transparent;
+    border-right-color: #ffebeb;
+    border-left: 0;
+    position: absolute;
+    top: 20%;
+    left: -10px;
+}
+
+div.milestone::after {
+    content: "";
+    background: #fff;
+    border: 4px solid #41de1a;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    position: absolute;
+    top: 20%;
+    left: -40px;
+}
+
+.button-container-milestone {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+
+.widget-wrap {
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 20px;
 }

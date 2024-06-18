@@ -142,7 +142,7 @@ function showTab(tab) {
         newsIcon.style.color = '';
         localStorage.setItem('userClickedNewsIcon', 'true');
     }
-    if (tab === 'backgrounds' || tab === 'newMemoryBox' || tab === 'news' || tab === 'settings' || tab === 'info') {
+    if (tab === 'backgrounds' || tab === 'newMemoryBox' || tab === 'newMilestone' || tab === 'news' || tab === 'settings' || tab === 'info') {
         document.querySelector('.buttons-container').classList.remove('show');
     }
     else {

@@ -14,6 +14,7 @@ const dbFilePath = path.join(documentsPathDB, 'nedb.db');
 const settingsDBFilePath = path.join(documentsPathDB, 'settings.db');
 const userDBFilePath = path.join(documentsPathDB, 'user.db');
 const statsFilePath = path.join(documentsPathDB, 'stats.db');
+const memoriesFilePath = path.join(documentsPathDB, 'milestones.db');
 const gotSingleLock = app.requestSingleInstanceLock();
 const clientId = '1231218760590032897';
 
@@ -21,6 +22,7 @@ let db;
 let settingsDB;
 let userDB;
 let statsDB;
+let milestonesDB;
 let rpc;
 
 if (!gotSingleLock) {
@@ -32,6 +34,7 @@ if (!gotSingleLock) {
     settingsDB = new Datastore({ filename: settingsDBFilePath, autoload: true });
     userDB = new Datastore({ filename: userDBFilePath, autoload: true });
     statsDB = new Datastore({ filename: statsFilePath, autoload: true });
+    milestonesDB = new Datastore({ filename: memoriesFilePath, autoload: true });
 
     settingsDB.findOne({}, (err, doc) => {
       if (err) {
@@ -120,7 +123,6 @@ function createWindow() {
   const targetDisplay = displays.find(display => display.bounds.x === 0 && display.bounds.y === 0) || displays[0];
   const { workArea } = targetDisplay;
 
-  // Fetch the configured window location
   settingsDB.findOne({}, (err, doc) => {
     if (!err && doc && doc.x && doc.y) {
       const { x, y } = doc;
@@ -139,7 +141,7 @@ function createWindow() {
           nodeIntegration: true,
           contextIsolation: false,
           sandbox: false,
-          devTools: false,
+          devTools: true,
           hardwareAcceleration: false,
           webSecurity: true,
           contentSecurityPolicy: {
@@ -165,7 +167,6 @@ function createWindow() {
         return { action: 'deny' };
       });
     } else {
-      // Use default location if configuration is not available
       const x = workArea.width - windowWidth;
       const y = workArea.y;
 
@@ -183,7 +184,7 @@ function createWindow() {
           nodeIntegration: true,
           contextIsolation: false,
           sandbox: false,
-          devTools: false,
+          devTools: true,
           hardwareAcceleration: false,
           webSecurity: true,
           contentSecurityPolicy: {
@@ -238,6 +239,23 @@ ipcMain.on('save-memory', (event, memoryData) => {
     event.sender.send('memory-saved', newMemory);
   });
 });
+ipcMain.on('save-milestone', (event, milestoneData) => {
+  milestonesDB.insert(milestoneData, (err, newMilestone) => {
+    if (err) {
+      console.error('Error saving milestone:', err);
+      return;
+    }
+    statsDB.update({}, { $inc: { milestonesMade: 1 } }, { upsert: true }, (err, numReplaced) => {
+      if (err) {
+        console.error('Error updating milestones made count:', err);
+        return;
+      }
+
+      console.log('Milestones made count updated in the database');
+    });
+    event.sender.send('milestone-saved', newMilestone);
+  });
+});
 
 ipcMain.on('fetch-memories', (event) => {
   db.find({}, (err, memories) => {
@@ -247,6 +265,17 @@ ipcMain.on('fetch-memories', (event) => {
     }
 
     event.sender.send('memories-fetched', memories);
+  });
+});
+
+ipcMain.on('fetch-milestones', (event) => {
+  milestonesDB.find({}, (err, milestones) => {
+    if (err) {
+      console.error('Error fetching milestones:', err);
+      return;
+    }
+
+    event.sender.send('milestones-fetched', milestones);
   });
 });
 
@@ -270,11 +299,34 @@ ipcMain.on('delete-memory', (event, memoryId) => {
     });
   }
 });
+
+ipcMain.on('delete-milestone', (event, milestoneId) => {
+  const confirmationDel = dialog.showMessageBoxSync({
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: 'Volim Te App asks:',
+    message: 'Are you sure you want to delete this milestone?',
+  });
+
+  if (confirmationDel === 0) {
+    milestonesDB.remove({ _id: milestoneId }, {}, (err, numRemoved) => {
+      if (err) {
+        console.error('Error deleting milestone:', err);
+        return;
+      }
+
+      event.sender.send('milestone-deleted', milestoneId);
+    });
+  }
+});
+
 ipcMain.on('clear-database', () => {
   db.remove({}, { multi: true });
   settingsDB.remove({}, { multi: true });
   userDB.remove({}, { multi: true });
   statsDB.remove({}, { multi: true });
+  milestonesDB.remove({}, { multi: true });
 });
 
 ipcMain.on('configure-window-size', (event) => {
@@ -726,7 +778,7 @@ ipcMain.on('request-stats', (event) => {
       console.error('Error fetching stats:', err);
       return;
     }
-    event.sender.send('stats-response', stats || { dateJoined: null, launchCount: 0, generatedCards: 0, memoriesMade: 0, backgroundsStat: 0 });
+    event.sender.send('stats-response', stats || { dateJoined: null, launchCount: 0, generatedCards: 0, memoriesMade: 0, milestonesMade: 0, backgroundsStat: 0 });
   });
 });
 ipcMain.on('update-available', (event) => {
