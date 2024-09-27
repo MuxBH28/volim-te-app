@@ -1,6 +1,7 @@
 # Volim Te App - Celebrate Your Love Journey
 
 ![](images/icon.png)
+
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/volim-te-app)
 ## Table of concepts
 - [Overview](#overview)
