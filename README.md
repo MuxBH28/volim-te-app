@@ -1,4 +1,8 @@
-# Volim Te App - Celebrate Your Love Journey
+# Volim Te App - Celebrate Your Love Journey 
+
+[![volim-te-app](https://snapcraft.io/volim-te-app/badge.svg)](https://snapcraft.io/volim-te-app)
+
+
 
 ![](images/icon.png)
 
