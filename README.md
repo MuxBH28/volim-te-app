@@ -53,13 +53,13 @@ Screenshots are from earlier versions
   - Javascript
 
 ## Links
-- Website - [www.sehic.rf.gd/volimte](https://sehic.rf.gd/volimte)
-- Download - [www.sehic.rf.gd/volimte#download](https://sehic.rf.gd/volimte#download)
-- Contact - [www.sehic.rf.gd/contact](https://sehic.rf.gd/#contact)
+- Website - [volimte.sehic.rf.gd/](http://volimte.sehic.rf.gd/)
+- Download - [volimte.sehic.rf.gd/#download](http://volimte.sehic.rf.gd/#download)
+- Contact - [msehic.com/contact](https://msehic.com/contact)
 
 ## Author
 
 - LinkedIn - [@Muhammed Šehić](https://www.linkedin.com/in/muhammed-%C5%A1ehi%C4%87-31a7b6175/)
 - GitHub - [@MuxBH28](https://github.com/MuxBH28)
-- Website - [www.sehic.rf.gd](https://sehic.rf.gd/)
-- Contact - [www.sehic.rf.gd/#contact](https://sehic.rf.gd/#contact)
+- Website -  [msehic.com/](https://msehic.com/)
+- Contact -  [msehic.com/contact](https://msehic.com/contact)
