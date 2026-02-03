@@ -1,3 +1,5 @@
+# NOTICE: This project is abandoned
+
 # Volim Te App - Celebrate Your Love Journey 
 
 [![volim-te-app](https://snapcraft.io/volim-te-app/badge.svg)](https://snapcraft.io/volim-te-app)
